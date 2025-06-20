@@ -1,0 +1,33 @@
+import Link from 'next/link';
+import { Package2 } from 'lucide-react';
+import { NavLink } from './NavLink';
+import { CartIcon } from '@/components/cart/CartIcon';
+import SearchWithSuggestions from '@/components/search/SearchWithSuggestions';
+
+export function AppHeader() {
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-14 max-w-screen-2xl items-center">
+        <Link href="/" className="mr-6 flex items-center space-x-2">
+          <Package2 className="h-6 w-6 text-primary" />
+          <span className="font-bold sm:inline-block font-headline text-primary">
+            ElectroStore Connect
+          </span>
+        </Link>
+        <nav className="flex items-center gap-4 text-sm lg:gap-6">
+          <NavLink href="/">Home</NavLink>
+          <NavLink href="/products">Products</NavLink>
+          <NavLink href="/shops">Shops</NavLink>
+          <NavLink href="/vendor/orders">Vendor Orders</NavLink>
+        </nav>
+        <div className="flex flex-1 items-center justify-end space-x-4">
+          <div className="w-full flex-1 md:w-auto md:flex-none">
+             <SearchWithSuggestions />
+          </div>
+          <CartIcon />
+          {/* User profile/login button can be added here later */}
+        </div>
+      </div>
+    </header>
+  );
+}
