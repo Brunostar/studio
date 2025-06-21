@@ -7,10 +7,10 @@ import { CartItemCard } from './CartItemCard';
 import { SHOPS } from '@/lib/mock-data'; // To get shop WhatsApp numbers
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
-import { MessageCircle, ShoppingBag } from 'lucide-react';
+import { MessageCircle, ShoppingBag, Loader2 } from 'lucide-react';
 
 export function CartView() {
-  const { cartItems, getCartTotal, clearCart, itemCount } = useCart();
+  const { cartItems, getCartTotal, clearCart, itemCount, isLoaded } = useCart();
 
   const handleWhatsAppCheckout = () => {
     if (cartItems.length === 0) return;
@@ -37,6 +37,19 @@ export function CartView() {
     // Optionally, clear cart after redirecting or after confirmation
     // clearCart(); 
   };
+  
+  if (!isLoaded) {
+    return (
+      <Card className="shadow-xl rounded-lg">
+        <CardHeader>
+          <CardTitle className="text-2xl font-headline">Your Shopping Cart</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center p-12">
+          <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (itemCount === 0) {
     return (

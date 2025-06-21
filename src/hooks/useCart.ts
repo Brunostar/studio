@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { Product, CartItem } from '@/types';
 import { toast } from './use-toast';
 
@@ -15,6 +15,7 @@ interface CartHook {
   getCartTotal: () => number;
   itemCount: number;
   getItemQuantity: (productId: string) => number;
+  isLoaded: boolean;
 }
 
 export function useCart(): CartHook {
@@ -115,10 +116,10 @@ export function useCart(): CartHook {
     return cartItems.reduce((total, item) => total + item.product.price * item.quantity, 0);
   }, [cartItems, isLoaded]);
 
-  const itemCount = useCallback(() => {
+  const itemCount = useMemo(() => {
      if (!isLoaded) return 0;
      return cartItems.reduce((count, item) => count + item.quantity, 0);
-  }, [cartItems, isLoaded])();
+  }, [cartItems, isLoaded]);
 
 
   const getItemQuantity = useCallback((productId: string) => {
@@ -128,5 +129,5 @@ export function useCart(): CartHook {
   }, [cartItems, isLoaded]);
 
 
-  return { cartItems, addToCart, removeFromCart, updateQuantity, clearCart, getCartTotal, itemCount, getItemQuantity };
+  return { cartItems, addToCart, removeFromCart, updateQuantity, clearCart, getCartTotal, itemCount, getItemQuantity, isLoaded };
 }
