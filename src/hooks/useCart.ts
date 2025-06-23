@@ -118,7 +118,7 @@ export function useCart(): CartHook {
 
   const itemCount = useMemo(() => {
      if (!isLoaded) return 0;
-     return cartItems.reduce((count, item) => count + item.quantity, 0);
+     return cartItems.length;
   }, [cartItems, isLoaded]);
 
 
