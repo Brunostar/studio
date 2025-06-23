@@ -9,7 +9,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, pass: string) => Promise<any>;
-  signup: (email: string, pass: string) => Promise<any>;
+  signup: (name: string, email: string, pass: string) => Promise<any>;
   logout: () => Promise<void>;
   isFirebaseEnabled: boolean;
 }
@@ -44,11 +44,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return signInWithEmailAndPassword(auth, email, pass);
   };
 
-  const signup = (email: string, pass: string) => {
+  const signup = async (name: string, email: string, pass: string) => {
     if (!firebaseConfigIsValid || !auth) {
-      return Promise.reject(new Error("Firebase is not configured. Please check your .env file."));
+      throw new Error("Firebase is not configured. Please check your .env file.");
     }
-    return createUserWithEmailAndPassword(auth, email, pass);
+    
+    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+    const token = await userCredential.user.getIdToken();
+
+    try {
+      const response = await fetch('https://e-electro-backend.onrender.com/api/users/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          role: 'customer'
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        // If backend registration fails, delete the user from Firebase to allow a clean retry.
+        await userCredential.user.delete();
+        throw new Error(errorData.message || 'Failed to register user on the backend. Please try again.');
+      }
+      return userCredential;
+    } catch (error) {
+      // This catches network errors or if the backend registration fails.
+      // We also delete the Firebase user here to ensure data consistency.
+      await userCredential.user.delete();
+      console.error("An error occurred during backend registration:", error);
+      throw error; // Re-throw the error to be caught by the UI
+    }
   };
   
   const logout = async () => {
