@@ -19,7 +19,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 const createShopFormSchema = z.object({
   name: z.string().min(3, { message: 'Shop name must be at least 3 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
-  vendorWhatsapp: z.string().min(10, { message: 'Please enter a valid WhatsApp number.' }),
+  vendorWhatsapp: z.string().min(10, { message: 'Please enter a valid WhatsApp number including country code.' }).startsWith('+', {message: 'WhatsApp number must start with a country code (e.g., +1...)'}),
 });
 
 type CreateShopFormValues = z.infer<typeof createShopFormSchema>;
@@ -47,21 +47,48 @@ export default function CreateShopPage() {
   });
 
   async function onSubmit(data: CreateShopFormValues) {
+    if (!user) {
+      toast({ title: 'You must be logged in to create a shop.', variant: 'destructive' });
+      return;
+    }
+    
     setIsSubmitting(true);
-    // In a real app, you would send this data to your backend to create a shop
-    console.log('Creating shop with data:', { ...data, userId: user?.uid });
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch('https://e-electro-backend.onrender.com/api/shops', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: data.name,
+          description: data.description,
+          whatsappNumber: data.vendorWhatsapp,
+          active: false, // Shops are inactive by default, pending admin approval
+        })
+      });
 
-    toast({
-      title: 'Shop Created!',
-      description: `${data.name} is now open for business.`,
-    });
-    
-    // In a real app, you would redirect to the new shop page or a vendor dashboard
-    router.push('/');
-    setIsSubmitting(false);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create shop. Please try again.');
+      }
+
+      toast({
+        title: 'Shop Submitted for Review!',
+        description: `Thank you! Your shop "${data.name}" has been submitted and is pending activation by an administrator.`,
+      });
+      
+      router.push('/');
+    } catch (error: any) {
+      toast({
+        title: 'Shop Creation Failed',
+        description: error.message || 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
   
   if (loading || !user) {
@@ -97,7 +124,7 @@ export default function CreateShopPage() {
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle className="text-2xl">Create Your Shop</CardTitle>
-          <CardDescription>Fill in the details below to set up your new e-commerce store.</CardDescription>
+          <CardDescription>Fill in the details below to set up your new e-commerce store. Your shop will be reviewed by an admin before activation.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -139,7 +166,7 @@ export default function CreateShopPage() {
                   <FormItem>
                     <FormLabel>WhatsApp Number</FormLabel>
                     <FormControl>
-                      <Input placeholder="Your business contact number" {...field} />
+                      <Input placeholder="+1234567890" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -147,7 +174,7 @@ export default function CreateShopPage() {
               />
               <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Create Shop
+                Submit for Review
               </Button>
             </form>
           </Form>
