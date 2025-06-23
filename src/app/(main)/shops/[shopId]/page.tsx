@@ -1,22 +1,24 @@
 import Image from 'next/image';
 import { ProductList } from '@/components/products/ProductList';
-import { SHOPS, PRODUCTS } from '@/lib/mock-data';
+import { PRODUCTS } from '@/lib/mock-data';
 import type { Shop, Product } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {notFound} from 'next/navigation';
+import { notFound } from 'next/navigation';
+import { getAllShops, getShopById } from '@/services/shopService';
 
 interface ShopPageParams {
   params: { shopId: string };
 }
 
 export async function generateStaticParams() {
-  return SHOPS.map((shop) => ({
+  const shops = await getAllShops();
+  return shops.map((shop) => ({
     shopId: shop.id,
   }));
 }
 
-export default function ShopPage({ params }: ShopPageParams) {
-  const shop: Shop | undefined = SHOPS.find(s => s.id === params.shopId);
+export default async function ShopPage({ params }: ShopPageParams) {
+  const shop: Shop | null = await getShopById(params.shopId);
   
   if (!shop) {
     notFound();

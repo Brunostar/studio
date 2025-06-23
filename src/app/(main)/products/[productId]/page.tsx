@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { PRODUCTS, SHOPS } from '@/lib/mock-data';
+import { PRODUCTS } from '@/lib/mock-data';
 import type { Product } from '@/types';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -11,6 +11,7 @@ import { generateProductDescription } from '@/ai/flows/generate-product-descript
 import { ProductActions } from '@/components/products/ProductActions';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
+import { getShopById } from '@/services/shopService';
 
 interface ProductPageParams {
   params: { productId: string };
@@ -45,7 +46,7 @@ export default async function ProductPage({ params }: ProductPageParams) {
     notFound();
   }
 
-  const shop = SHOPS.find(s => s.id === product.shopId);
+  const shop = await getShopById(product.shopId);
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8">

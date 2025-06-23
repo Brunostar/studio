@@ -1,42 +1,6 @@
-import type { Product, Shop, Category, Order } from '@/types';
+import type { Product, Category, Order } from '@/types';
 
 export const CATEGORIES: Category[] = ['All', 'Phones', 'TVs', 'Speakers', 'Laptops', 'Accessories'];
-
-export const SHOPS: Shop[] = [
-  {
-    id: 'shop1',
-    name: 'Gadget Galaxy',
-    description: 'Your one-stop shop for the latest and greatest gadgets. We offer a wide variety of electronics from top brands.',
-    bannerUrl: 'https://placehold.co/1200x300.png',
-    dataAiHintBanner: 'tech store banner',
-    logoUrl: 'https://placehold.co/100x100.png',
-    dataAiHintLogo: 'store logo',
-    vendorWhatsapp: '12345678901', // Replace with a valid WhatsApp number format if testing
-    isFeatured: true,
-    userId: 'mock-user-id-1', // Example owner
-  },
-  {
-    id: 'shop2',
-    name: 'Electro Dreams',
-    description: 'Bringing you the future of electronics today. Quality products and excellent customer service.',
-    bannerUrl: 'https://placehold.co/1200x300.png',
-    dataAiHintBanner: 'electronics shop',
-    logoUrl: 'https://placehold.co/100x100.png',
-    dataAiHintLogo: 'company logo',
-    vendorWhatsapp: '12345678902',
-  },
-  {
-    id: 'shop3',
-    name: 'Sound & Vision Hub',
-    description: 'Specialists in high-fidelity audio and stunning visual displays. Experience entertainment like never before.',
-    bannerUrl: 'https://placehold.co/1200x300.png',
-    dataAiHintBanner: 'audio visual',
-    logoUrl: 'https://placehold.co/100x100.png',
-    dataAiHintLogo: 'brand monogram',
-    vendorWhatsapp: '12345678903',
-    isFeatured: true,
-  },
-];
 
 export const PRODUCTS: Product[] = [
   {

@@ -65,7 +65,6 @@ export default function CreateShopPage() {
           name: data.name,
           description: data.description,
           whatsappNumber: data.vendorWhatsapp,
-          active: false, // Shops are inactive by default, pending admin approval
         })
       });
 

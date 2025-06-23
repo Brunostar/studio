@@ -1,11 +1,13 @@
 import { ProductList } from '@/components/products/ProductList';
 import { ShopList } from '@/components/shops/ShopList';
-import { PRODUCTS, SHOPS } from '@/lib/mock-data';
+import { PRODUCTS } from '@/lib/mock-data';
+import { getAllShops } from '@/services/shopService';
 import type { Product, Shop } from '@/types';
 
-export default function HomePage() {
+export default async function HomePage() {
   const popularProducts: Product[] = PRODUCTS.filter(p => p.isPopular).slice(0, 4);
-  const featuredShops: Shop[] = SHOPS.filter(s => s.isFeatured).slice(0, 3);
+  const allShops = await getAllShops();
+  const featuredShops: Shop[] = allShops.filter(s => s.isFeatured).slice(0, 3);
 
   return (
     <div className="container mx-auto px-4 py-8">

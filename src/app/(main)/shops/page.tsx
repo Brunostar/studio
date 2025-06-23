@@ -1,9 +1,9 @@
 import { ShopList } from '@/components/shops/ShopList';
-import { SHOPS } from '@/lib/mock-data';
+import { getAllShops } from '@/services/shopService';
 import type { Shop } from '@/types';
 
-export default function ShopsPage() {
-  const allShops: Shop[] = SHOPS;
+export default async function ShopsPage() {
+  const allShops: Shop[] = await getAllShops();
 
   return (
     <div className="container mx-auto px-4 py-8">

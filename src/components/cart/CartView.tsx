@@ -1,25 +1,46 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useCart } from '@/hooks/useCart';
+import type { Shop } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { CartItemCard } from './CartItemCard';
-import { SHOPS } from '@/lib/mock-data'; // To get shop WhatsApp numbers
 import { Separator } from '@/components/ui/separator';
-import Link from 'next/link';
 import { MessageCircle, ShoppingBag, Loader2 } from 'lucide-react';
+import { CartItemCard } from './CartItemCard';
 
 export function CartView() {
   const { cartItems, getCartTotal, clearCart, itemCount, isLoaded } = useCart();
+  const [shop, setShop] = useState<Shop | null>(null);
+  const [isFetchingShop, setIsFetchingShop] = useState(false);
+
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      const firstItemShopId = cartItems[0].product.shopId;
+      setIsFetchingShop(true);
+      fetch(`https://e-electro-backend.onrender.com/api/shops/${firstItemShopId}`)
+        .then(res => {
+          if (!res.ok) throw new Error('Shop not found');
+          return res.json();
+        })
+        .then((shopData: Shop) => {
+          setShop(shopData);
+        })
+        .catch(err => {
+          console.error("Failed to fetch shop details for cart", err);
+          setShop(null);
+        })
+        .finally(() => {
+          setIsFetchingShop(false);
+        });
+    } else {
+      setShop(null);
+    }
+  }, [cartItems]);
 
   const handleWhatsAppCheckout = () => {
-    if (cartItems.length === 0) return;
-
-    // For simplicity, use the WhatsApp number of the shop of the first item in the cart.
-    // A more robust solution would handle items from multiple shops.
-    const firstItemShopId = cartItems[0].product.shopId;
-    const shop = SHOPS.find(s => s.id === firstItemShopId);
-    const vendorWhatsapp = shop ? shop.vendorWhatsapp : 'YOUR_PLATFORM_FALLBACK_NUMBER'; // Fallback needed
+    if (cartItems.length === 0 || !shop?.vendorWhatsapp) return;
 
     const itemsText = cartItems
       .map(item => `${item.product.name} (Qty: ${item.quantity}) - $${(item.product.price * item.quantity).toFixed(2)}`)
@@ -27,15 +48,11 @@ export function CartView() {
     
     const total = getCartTotal().toFixed(2);
     const message = encodeURIComponent(
-      `Hello ${shop ? shop.name : 'ElectroStore Connect'},\nI would like to order the following items:\n${itemsText}\n\nTotal: $${total}\n\nThank you!`
+      `Hello ${shop.name || 'ElectroStore Connect'},\nI would like to order the following items:\n${itemsText}\n\nTotal: $${total}\n\nThank you!`
     );
 
-    // Replace with a valid international phone number format for wa.me
-    // Example: for +1234567890, use 1234567890
-    const whatsappUrl = `https://wa.me/${vendorWhatsapp}?text=${message}`;
+    const whatsappUrl = `https://wa.me/${shop.vendorWhatsapp}?text=${message}`;
     window.open(whatsappUrl, '_blank');
-    // Optionally, clear cart after redirecting or after confirmation
-    // clearCart(); 
   };
   
   if (!isLoaded) {
@@ -96,10 +113,10 @@ export function CartView() {
           size="lg" 
           className="w-full mt-4 bg-accent hover:bg-accent/90 text-accent-foreground" 
           onClick={handleWhatsAppCheckout}
-          disabled={cartItems.length === 0}
+          disabled={cartItems.length === 0 || isFetchingShop || !shop}
         >
-          <MessageCircle className="mr-2 h-5 w-5" />
-          Checkout via WhatsApp
+          {isFetchingShop ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <MessageCircle className="mr-2 h-5 w-5" />}
+          {isFetchingShop ? 'Loading Shop Info...' : 'Checkout via WhatsApp'}
         </Button>
         <Button variant="outline" className="w-full" onClick={clearCart}>
           Clear Cart
