@@ -19,7 +19,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 const createShopFormSchema = z.object({
   name: z.string().min(3, { message: 'Shop name must be at least 3 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
-  vendorWhatsapp: z.string().min(10, { message: 'Please enter a valid WhatsApp number including country code.' }).startsWith('+', {message: 'WhatsApp number must start with a country code (e.g., +1...)'}),
+  whatsappNumber: z.string().min(10, { message: 'Please enter a valid WhatsApp number including country code.' }).startsWith('+', {message: 'WhatsApp number must start with a country code (e.g., +1...)'}),
 });
 
 type CreateShopFormValues = z.infer<typeof createShopFormSchema>;
@@ -42,7 +42,7 @@ export default function CreateShopPage() {
     defaultValues: {
       name: '',
       description: '',
-      vendorWhatsapp: '',
+      whatsappNumber: '',
     },
   });
 
@@ -64,7 +64,7 @@ export default function CreateShopPage() {
         body: JSON.stringify({
           name: data.name,
           description: data.description,
-          whatsappNumber: data.vendorWhatsapp,
+          whatsappNumber: data.whatsappNumber,
         })
       });
 
@@ -75,10 +75,10 @@ export default function CreateShopPage() {
 
       toast({
         title: 'Shop Submitted for Review!',
-        description: `Thank you! Your shop "${data.name}" has been submitted and is pending activation by an administrator.`,
+        description: `Thank you! Your shop "${data.name}" has been submitted and is pending activation by an administrator. You will be redirected to complete your shop profile.`,
       });
       
-      router.push('/');
+      router.push('/vendor/update-shop');
     } catch (error: any) {
       toast({
         title: 'Shop Creation Failed',
@@ -160,7 +160,7 @@ export default function CreateShopPage() {
               />
                <FormField
                 control={form.control}
-                name="vendorWhatsapp"
+                name="whatsappNumber"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>WhatsApp Number</FormLabel>

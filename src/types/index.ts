@@ -15,11 +15,12 @@ export interface Shop {
   id: string;
   name:string;
   description: string;
-  bannerUrl: string;
-  logoUrl: string;
-  vendorWhatsapp: string;
+  whatsappNumber: string;
+  location?: string;
+  logoUrl?: string;
+  coverPhotoUrl?: string;
   isFeatured?: boolean;
-  dataAiHintBanner?: string;
+  dataAiHintCoverPhoto?: string;
   dataAiHintLogo?: string;
   userId?: string; // The ID of the user who owns the shop
 }

@@ -11,21 +11,21 @@ export function ShopCard({ shop }: ShopCardProps) {
   return (
     <Link href={`/shops/${shop.id}`} className="block group">
       <Card className="overflow-hidden rounded-lg shadow-lg transition-all hover:shadow-xl h-full flex flex-col">
-        <CardHeader className="p-0 relative aspect-[2/1] w-full">
+        <CardHeader className="p-0 relative aspect-[2/1] w-full bg-muted">
           <Image
-            src={shop.bannerUrl}
-            alt={`${shop.name} banner`}
+            src={shop.coverPhotoUrl || 'https://placehold.co/600x300.png'}
+            alt={`${shop.name} cover photo`}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover"
-            data-ai-hint={shop.dataAiHintBanner || "shop banner"}
+            data-ai-hint={shop.dataAiHintCoverPhoto || "shop cover photo"}
           />
         </CardHeader>
         <CardContent className="p-4 flex-grow">
           <div className="flex items-center mb-2">
-            <div className="relative w-12 h-12 rounded-full overflow-hidden mr-3 border-2 border-border">
+            <div className="relative w-12 h-12 rounded-full overflow-hidden mr-3 border-2 border-border bg-muted">
               <Image
-                src={shop.logoUrl}
+                src={shop.logoUrl || 'https://placehold.co/100x100.png'}
                 alt={`${shop.name} logo`}
                 fill
                 className="object-cover"

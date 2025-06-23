@@ -40,7 +40,7 @@ export function CartView() {
   }, [cartItems]);
 
   const handleWhatsAppCheckout = () => {
-    if (cartItems.length === 0 || !shop?.vendorWhatsapp) return;
+    if (cartItems.length === 0 || !shop?.whatsappNumber) return;
 
     const itemsText = cartItems
       .map(item => `${item.product.name} (Qty: ${item.quantity}) - $${(item.product.price * item.quantity).toFixed(2)}`)
@@ -51,7 +51,7 @@ export function CartView() {
       `Hello ${shop.name || 'ElectroStore Connect'},\nI would like to order the following items:\n${itemsText}\n\nTotal: $${total}\n\nThank you!`
     );
 
-    const whatsappUrl = `https://wa.me/${shop.vendorWhatsapp}?text=${message}`;
+    const whatsappUrl = `https://wa.me/${shop.whatsappNumber}?text=${message}`;
     window.open(whatsappUrl, '_blank');
   };
   

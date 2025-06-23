@@ -1,0 +1,159 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { updateShop } from '@/services/shopService';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Loader2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const updateShopFormSchema = z.object({
+  name: z.string().min(3, { message: 'Shop name must be at least 3 characters.' }),
+  description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
+  whatsappNumber: z.string().min(10, 'Please enter a valid WhatsApp number.'),
+  location: z.string().min(3, 'Please enter a valid location.'),
+  logoUrl: z.string().url('Please enter a valid URL for the logo.'),
+  coverPhotoUrl: z.string().url('Please enter a valid URL for the cover photo.'),
+});
+
+type UpdateShopFormValues = z.infer<typeof updateShopFormSchema>;
+
+export default function UpdateShopPage() {
+  const router = useRouter();
+  const { user, loading: authLoading, shop, isVendor } = useAuth();
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const form = useForm<UpdateShopFormValues>({
+    resolver: zodResolver(updateShopFormSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      whatsappNumber: '',
+      location: '',
+      logoUrl: '',
+      coverPhotoUrl: '',
+    },
+  });
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, authLoading, router]);
+
+  useEffect(() => {
+    if (shop) {
+      form.reset({
+        name: shop.name || '',
+        description: shop.description || '',
+        whatsappNumber: shop.whatsappNumber || '',
+        location: shop.location || '',
+        logoUrl: shop.logoUrl || '',
+        coverPhotoUrl: shop.coverPhotoUrl || '',
+      });
+    }
+  }, [shop, form]);
+
+  async function onSubmit(data: UpdateShopFormValues) {
+    if (!user || !shop) {
+      toast({ title: 'Authentication error. Please log in again.', variant: 'destructive' });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    try {
+      const token = await user.getIdToken();
+      await updateShop(data, token);
+
+      toast({
+        title: 'Shop Updated!',
+        description: 'Your shop information has been successfully updated.',
+      });
+      
+      router.push(`/shops/${shop.id}`);
+      router.refresh(); // Force a refresh to reflect changes
+    } catch (error: any) {
+      toast({
+        title: 'Update Failed',
+        description: error.message || 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  if (authLoading || !shop) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card className="max-w-2xl mx-auto">
+          <CardHeader>
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-full max-w-sm" />
+          </CardHeader>
+          <CardContent className="space-y-6 pt-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ))}
+            <Skeleton className="h-10 w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <Card className="max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle className="text-2xl">Update Your Shop</CardTitle>
+          <CardDescription>
+            { isVendor && !shop.location ? 'Your shop is almost ready! Please complete your profile to make it visible to customers.' : 'Edit your shop information below.' }
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField name="name" control={form.control} render={({ field }) => (
+                <FormItem><FormLabel>Shop Name</FormLabel><FormControl><Input placeholder="e.g., The Gadget Grove" {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField name="description" control={form.control} render={({ field }) => (
+                <FormItem><FormLabel>Shop Description</FormLabel><FormControl><Textarea placeholder="Tell customers about your shop." {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField name="whatsappNumber" control={form.control} render={({ field }) => (
+                <FormItem><FormLabel>WhatsApp Number</FormLabel><FormControl><Input placeholder="+1234567890" {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField name="location" control={form.control} render={({ field }) => (
+                <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="e.g., Silicon Valley, CA" {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField name="logoUrl" control={form.control} render={({ field }) => (
+                <FormItem><FormLabel>Logo URL</FormLabel><FormControl><Input placeholder="https://example.com/logo.png" {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField name="coverPhotoUrl" control={form.control} render={({ field }) => (
+                <FormItem><FormLabel>Cover Photo URL</FormLabel><FormControl><Input placeholder="https://example.com/cover.png" {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Changes
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

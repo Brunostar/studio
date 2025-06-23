@@ -3,7 +3,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, User, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, firebaseConfigIsValid } from '@/lib/firebase';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import type { Shop } from '@/types';
+import { getMyShop } from '@/services/shopService';
 
 interface AuthContextType {
   user: User | null;
@@ -13,15 +15,26 @@ interface AuthContextType {
   logout: () => Promise<void>;
   isFirebaseEnabled: boolean;
   isVendor: boolean;
+  shop: Shop | null;
+  isShopProfileComplete: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const isShopProfileComplete = (shop: Shop | null): boolean => {
+  if (!shop) return false;
+  // A simple check for non-empty strings and non-placeholder URLs
+  return !!(shop.location && shop.logoUrl && shop.coverPhotoUrl && shop.logoUrl !== 'https://placehold.co/100x100.png' && shop.coverPhotoUrl !== 'https://placehold.co/1200x300.png');
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [shop, setShop] = useState<Shop | null>(null);
+  
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!firebaseConfigIsValid || !auth) {
@@ -37,7 +50,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (user) {
         try {
           const token = await user.getIdToken();
-          // Assuming an endpoint to fetch user profile data
           const response = await fetch('https://e-electro-backend.onrender.com/api/users/profile', {
             headers: {
               'Authorization': `Bearer ${token}`
@@ -46,23 +58,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           if (response.ok) {
             const profile = await response.json();
-            // Assuming the role is returned in the profile data, e.g., { role: 'vendor' }
-            setUserRole(profile.role || 'customer');
+            const role = profile.role || 'customer';
+            setUserRole(role);
+            if (role === 'vendor') {
+              const myShop = await getMyShop(token);
+              setShop(myShop);
+            } else {
+              setShop(null);
+            }
           } else {
-             // Default to customer if profile not found or on error
             setUserRole('customer');
+            setShop(null);
           }
         } catch (error) {
           console.error("Failed to fetch user profile:", error);
-          setUserRole('customer'); // Default role on error
+          setUserRole('customer');
+          setShop(null);
         }
       } else {
         setUserRole(null);
+        setShop(null);
       }
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const isVendorRoute = pathname.startsWith('/vendor/');
+    if (!loading && userRole === 'vendor' && shop && !isShopProfileComplete(shop) && isVendorRoute && pathname !== '/vendor/update-shop') {
+      router.push('/vendor/update-shop');
+    }
+  }, [loading, userRole, shop, pathname, router]);
 
   const login = (email: string, pass: string) => {
     if (!firebaseConfigIsValid || !auth) {
@@ -95,19 +122,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (!response.ok) {
         const errorData = await response.json();
-        // If backend registration fails, delete the user from Firebase to allow a clean retry.
         await userCredential.user.delete();
         throw new Error(errorData.message || 'Failed to register user on the backend. Please try again.');
       }
       return userCredential;
     } catch (error) {
-      // This catches network errors or if the backend registration fails.
-      // We also delete the Firebase user here to ensure data consistency.
       if (userCredential.user) {
         await userCredential.user.delete();
       }
       console.error("An error occurred during backend registration:", error);
-      throw error; // Re-throw the error to be caught by the UI
+      throw error;
     }
   };
   
@@ -122,7 +146,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isVendor = userRole === 'vendor';
 
-  const value = { user, loading, login, signup, logout, isFirebaseEnabled: firebaseConfigIsValid, isVendor };
+  const value = { user, loading, login, signup, logout, isFirebaseEnabled: firebaseConfigIsValid, isVendor, shop, isShopProfileComplete: isShopProfileComplete(shop) };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

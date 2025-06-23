@@ -5,6 +5,8 @@ import type { Shop, Product } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { notFound } from 'next/navigation';
 import { getAllShops, getShopById } from '@/services/shopService';
+import { EditShopButton } from '@/components/shops/EditShopButton';
+import { MapPin } from 'lucide-react';
 
 interface ShopPageParams {
   params: { shopId: string };
@@ -29,32 +31,38 @@ export default async function ShopPage({ params }: ShopPageParams) {
   return (
     <div className="container mx-auto px-4 py-8">
       <Card className="mb-8 overflow-hidden shadow-lg">
-        <div className="relative h-48 md:h-64 w-full">
+        <div className="relative h-48 md:h-64 w-full bg-muted">
           <Image
-            src={shop.bannerUrl}
-            alt={`${shop.name} banner`}
+            src={shop.coverPhotoUrl || 'https://placehold.co/1200x400.png'}
+            alt={`${shop.name} cover photo`}
             fill
             className="object-cover"
-            data-ai-hint={shop.dataAiHintBanner || "shop banner"}
+            data-ai-hint={shop.dataAiHintCoverPhoto || "shop cover photo"}
             priority
           />
         </div>
         <CardHeader className="flex flex-col md:flex-row items-start md:items-center gap-4 p-6">
-           <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-background shadow-md flex-shrink-0 -mt-12 md:-mt-16">
+           <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-background shadow-md flex-shrink-0 -mt-12 md:-mt-16 bg-muted">
             <Image
-              src={shop.logoUrl}
+              src={shop.logoUrl || 'https://placehold.co/100x100.png'}
               alt={`${shop.name} logo`}
               fill
               className="object-cover"
               data-ai-hint={shop.dataAiHintLogo || "shop logo"}
             />
           </div>
-          <div>
+          <div className="flex-grow">
             <CardTitle className="text-3xl font-bold font-headline text-primary">{shop.name}</CardTitle>
             <p className="text-muted-foreground mt-1">{shop.description}</p>
-            {shop.vendorWhatsapp && (
+            {shop.location && (
+                 <div className="mt-2 flex items-center text-sm text-muted-foreground">
+                    <MapPin className="h-4 w-4 mr-1.5" />
+                    {shop.location}
+                 </div>
+            )}
+            {shop.whatsappNumber && (
                  <a 
-                    href={`https://wa.me/${shop.vendorWhatsapp}`} 
+                    href={`https://wa.me/${shop.whatsappNumber}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="mt-2 inline-flex items-center text-sm text-accent hover:text-accent/80 font-medium"
@@ -63,6 +71,7 @@ export default async function ShopPage({ params }: ShopPageParams) {
                  </a>
             )}
           </div>
+          <EditShopButton shop={shop} />
         </CardHeader>
       </Card>
 
