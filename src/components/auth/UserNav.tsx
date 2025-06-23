@@ -20,7 +20,7 @@ import { LogOut, Store } from "lucide-react";
 import Link from "next/link";
 
 export function UserNav() {
-  const { user, logout } = useAuth();
+  const { user, logout, isVendor } = useAuth();
 
   if (!user) return null;
 
@@ -43,15 +43,21 @@ export function UserNav() {
             </p>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <Link href="/vendor/orders">
-            <DropdownMenuItem>
-              <Store className="mr-2 h-4 w-4" />
-              <span>Vendor Dashboard</span>
-            </DropdownMenuItem>
-          </Link>
-        </DropdownMenuGroup>
+        
+        {isVendor && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <Link href="/vendor/orders">
+                <DropdownMenuItem>
+                  <Store className="mr-2 h-4 w-4" />
+                  <span>Vendor Dashboard</span>
+                </DropdownMenuItem>
+              </Link>
+            </DropdownMenuGroup>
+          </>
+        )}
+
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout}>
           <LogOut className="mr-2 h-4 w-4" />

@@ -1,13 +1,57 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import { ORDERS } from '@/lib/mock-data';
 import type { Order } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Lock } from 'lucide-react';
 
-// Simulate a logged-in vendor. In a real app, this would come from auth.
-const MOCK_VENDOR_SHOP_ID = 'shop1'; 
 
 export default function VendorOrdersPage() {
-  const vendorOrders: Order[] = ORDERS.filter(order => order.shopId === MOCK_VENDOR_SHOP_ID);
+  const { user, loading, isVendor } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+  
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-8 text-center font-headline text-primary">Your Orders & Inquiries</h1>
+        <Skeleton className="h-96 w-full" />
+      </div>
+    )
+  }
+
+  if (!isVendor) {
+    return (
+       <div className="container mx-auto px-4 py-8 flex items-center justify-center" style={{ minHeight: 'calc(100vh - 200px)'}}>
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-center gap-2">
+              <Lock className="h-5 w-5" />
+              Access Denied
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>You must be a vendor to access this page. You can create a shop to become a vendor.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  
+  // In a real app, you would fetch orders belonging to this specific vendor.
+  // For now, we are showing all mock orders as an example.
+  const vendorOrders: Order[] = ORDERS; 
 
   return (
     <div className="container mx-auto px-4 py-8">

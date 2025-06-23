@@ -9,10 +9,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from 'lucide-react';
 
 export function AuthStatus() {
-  const { user, loading, isFirebaseEnabled } = useAuth();
+  const { user, loading, isFirebaseEnabled, isVendor } = useAuth();
   
-  // In a real app, we'd check if the user actually owns a shop from a database
-  const userHasShop = false; 
+  const userHasShop = isVendor; 
 
   if (!isFirebaseEnabled) {
     return (
