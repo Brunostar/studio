@@ -3,6 +3,7 @@ import { Package2 } from 'lucide-react';
 import { NavLink } from './NavLink';
 import { CartIcon } from '@/components/cart/CartIcon';
 import SearchWithSuggestions from '@/components/search/SearchWithSuggestions';
+import { AuthStatus } from '../auth/AuthStatus';
 
 export function AppHeader() {
   return (
@@ -25,7 +26,7 @@ export function AppHeader() {
              <SearchWithSuggestions />
           </div>
           <CartIcon />
-          {/* User profile/login button can be added here later */}
+          <AuthStatus />
         </div>
       </div>
     </header>

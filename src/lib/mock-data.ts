@@ -13,6 +13,7 @@ export const SHOPS: Shop[] = [
     dataAiHintLogo: 'store logo',
     vendorWhatsapp: '12345678901', // Replace with a valid WhatsApp number format if testing
     isFeatured: true,
+    userId: 'mock-user-id-1', // Example owner
   },
   {
     id: 'shop2',

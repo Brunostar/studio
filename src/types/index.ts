@@ -13,7 +13,7 @@ export interface Product {
 
 export interface Shop {
   id: string;
-  name: string;
+  name:string;
   description: string;
   bannerUrl: string;
   logoUrl: string;
@@ -21,6 +21,7 @@ export interface Shop {
   isFeatured?: boolean;
   dataAiHintBanner?: string;
   dataAiHintLogo?: string;
+  userId?: string; // The ID of the user who owns the shop
 }
 
 export interface CartItem {
