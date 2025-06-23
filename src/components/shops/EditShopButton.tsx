@@ -11,14 +11,14 @@ interface EditShopButtonProps {
 }
 
 export function EditShopButton({ shop }: EditShopButtonProps) {
-  const { user, loading, isVendor } = useAuth();
+  const { loading, isVendor, shop: myShop } = useAuth();
 
   if (loading) {
     return null; // Or a skeleton
   }
 
-  // Show button if the logged-in user is a vendor and owns this shop
-  if (isVendor && user && shop.userId === user.uid) {
+  // Show button if the logged-in user is a vendor and the shop on the page is their own
+  if (isVendor && myShop && shop.id === myShop.id) {
     return (
       <Button asChild variant="outline" size="sm">
         <Link href="/vendor/update-shop">
