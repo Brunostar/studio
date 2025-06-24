@@ -1,8 +1,8 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { PRODUCTS } from '@/lib/mock-data';
 import type { Product } from '@/types';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -12,23 +12,17 @@ import { ProductActions } from '@/components/products/ProductActions';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
 import { getShopById } from '@/services/shopService';
+import { getProductById } from '@/services/productService';
 
 interface ProductPageParams {
   params: { productId: string };
-}
-
-// Generate static pages for all products at build time
-export async function generateStaticParams() {
-  return PRODUCTS.map((product) => ({
-    productId: product.id,
-  }));
 }
 
 // Component for the AI-generated description with a loading fallback
 async function AiDescription({ product }: { product: Product }) {
   try {
     const { generatedDescription } = await generateProductDescription({
-      productName: product.name,
+      productTitle: product.title,
       productDescription: product.description,
     });
     return <p className="text-lg text-muted-foreground">{generatedDescription}</p>;
@@ -41,7 +35,7 @@ async function AiDescription({ product }: { product: Product }) {
 
 export default async function ProductPage({ params }: ProductPageParams) {
   const { productId } = params;
-  const product = PRODUCTS.find(p => p.id === productId);
+  const product = await getProductById(productId);
   
   if (!product) {
     notFound();
@@ -59,8 +53,8 @@ export default async function ProductPage({ params }: ProductPageParams) {
         <div className="grid md:grid-cols-2">
           <div className="relative aspect-square">
             <Image
-              src={product.images[0]}
-              alt={product.name}
+              src={product.images[0] || 'https://placehold.co/600x600.png'}
+              alt={product.title}
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
@@ -73,7 +67,7 @@ export default async function ProductPage({ params }: ProductPageParams) {
               <div className="flex justify-between items-start">
                   <div>
                     <Badge variant="outline" className="mb-2">{product.category}</Badge>
-                    <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">{product.name}</h1>
+                    <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">{product.title}</h1>
                   </div>
                   {shop && (
                     <Link href={`/shops/${shop.id}`} className="text-sm font-medium text-muted-foreground hover:underline shrink-0">

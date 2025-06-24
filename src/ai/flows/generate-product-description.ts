@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -12,7 +13,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GenerateProductDescriptionInputSchema = z.object({
-  productName: z.string().describe('The name of the product.'),
+  productTitle: z.string().describe('The title of the product.'),
   productDescription: z.string().describe('A brief, existing description of the product.'),
 });
 export type GenerateProductDescriptionInput = z.infer<typeof GenerateProductDescriptionInputSchema>;
@@ -32,10 +33,10 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateProductDescriptionOutputSchema},
   prompt: `You are an expert e-commerce copywriter. Your task is to write a compelling and engaging product description.
 
-  Use the provided product name and existing description as a starting point. Expand on it, highlight potential benefits, and create a narrative that would make a customer excited to buy it.
+  Use the provided product title and existing description as a starting point. Expand on it, highlight potential benefits, and create a narrative that would make a customer excited to buy it.
   Keep the description to a maximum of 3-4 sentences.
 
-  Product Name: {{{productName}}}
+  Product Title: {{{productTitle}}}
   Existing Description: {{{productDescription}}}
   `,
   config: {

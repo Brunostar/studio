@@ -1,10 +1,11 @@
+
 import Image from 'next/image';
 import { ProductList } from '@/components/products/ProductList';
-import { PRODUCTS } from '@/lib/mock-data';
 import type { Shop, Product } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { notFound } from 'next/navigation';
 import { getAllShops, getShopById } from '@/services/shopService';
+import { getProductsByShopId } from '@/services/productService';
 import { EditShopButton } from '@/components/shops/EditShopButton';
 import { MapPin } from 'lucide-react';
 
@@ -21,13 +22,13 @@ export async function generateStaticParams() {
 
 export default async function ShopPage({ params }: ShopPageParams) {
   const { shopId } = params;
-  const shop: Shop | null = await getShopById(shopId);
   
+  const shop: Shop | null = await getShopById(shopId);
   if (!shop) {
     notFound();
   }
 
-  const shopProducts: Product[] = PRODUCTS.filter(p => p.shopId === shopId);
+  const shopProducts: Product[] = await getProductsByShopId(shopId);
 
   return (
     <div className="container mx-auto px-4 py-8">

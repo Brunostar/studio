@@ -1,12 +1,15 @@
+
 export interface Product {
   id: string;
-  name: string;
+  title: string;
   description: string;
   images: string[];
   price: number;
-  stockCount: number;
+  stock: number;
   shopId: string;
   category: string;
+  vendorId: string;
+  createdAt: string;
   isPopular?: boolean;
   dataAiHint?: string; // For placeholder images
 }

@@ -1,12 +1,19 @@
+
 import { ProductList } from '@/components/products/ProductList';
 import { ShopList } from '@/components/shops/ShopList';
-import { PRODUCTS } from '@/lib/mock-data';
+import { getAllProducts } from '@/services/productService';
 import { getAllShops } from '@/services/shopService';
 import type { Product, Shop } from '@/types';
 
 export default async function HomePage() {
-  const popularProducts: Product[] = PRODUCTS.filter(p => p.isPopular).slice(0, 4);
+  // Fetch all products and shops from the API
+  const allProducts = await getAllProducts();
   const allShops = await getAllShops();
+
+  // Since the backend doesn't have an `isPopular` flag, we'll feature the most recent products.
+  // The backend API sorts products by creation date descending.
+  const popularProducts: Product[] = allProducts.slice(0, 4);
+
   const featuredShops: Shop[] = allShops.filter(s => s.isFeatured).slice(0, 3);
 
   return (

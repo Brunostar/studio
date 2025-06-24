@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -49,27 +50,27 @@ export function useCart(): CartHook {
       const existingItem = prevItems.find(item => item.product.id === product.id);
       if (existingItem) {
         const newQuantity = existingItem.quantity + quantity;
-        if (newQuantity > product.stockCount) {
+        if (newQuantity > product.stock) {
           toast({
             title: "Stock limit reached",
-            description: `You cannot add more than ${product.stockCount} units of ${product.name}.`,
+            description: `You cannot add more than ${product.stock} units of ${product.title}.`,
             variant: "destructive",
           });
           return prevItems.map(item =>
-            item.product.id === product.id ? { ...item, quantity: product.stockCount } : item
+            item.product.id === product.id ? { ...item, quantity: product.stock } : item
           );
         }
         return prevItems.map(item =>
           item.product.id === product.id ? { ...item, quantity: newQuantity } : item
         );
       } else {
-        if (quantity > product.stockCount) {
+        if (quantity > product.stock) {
            toast({
             title: "Stock limit reached",
-            description: `You cannot add more than ${product.stockCount} units of ${product.name}.`,
+            description: `You cannot add more than ${product.stock} units of ${product.title}.`,
             variant: "destructive",
           });
-          return [...prevItems, { product, quantity: product.stockCount }];
+          return [...prevItems, { product, quantity: product.stock }];
         }
         return [...prevItems, { product, quantity }];
       }
@@ -90,14 +91,14 @@ export function useCart(): CartHook {
       if (quantity <= 0) {
         return prevItems.filter(item => item.product.id !== productId);
       }
-      if (quantity > itemToUpdate.product.stockCount) {
+      if (quantity > itemToUpdate.product.stock) {
         toast({
             title: "Stock limit reached",
-            description: `Only ${itemToUpdate.product.stockCount} units of ${itemToUpdate.product.name} available.`,
+            description: `Only ${itemToUpdate.product.stock} units of ${itemToUpdate.product.title} available.`,
             variant: "destructive",
           });
         return prevItems.map(item =>
-          item.product.id === productId ? { ...item, quantity: itemToUpdate.product.stockCount } : item
+          item.product.id === productId ? { ...item, quantity: itemToUpdate.product.stock } : item
         );
       }
       return prevItems.map(item =>

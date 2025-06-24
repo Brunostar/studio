@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -21,11 +22,11 @@ export function ProductActions({ product }: ProductActionsProps) {
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity < 1) {
       setQuantity(1);
-    } else if (newQuantity > product.stockCount) {
-      setQuantity(product.stockCount);
+    } else if (newQuantity > product.stock) {
+      setQuantity(product.stock);
       toast({
         title: "Stock limit reached",
-        description: `Only ${product.stockCount} units available.`,
+        description: `Only ${product.stock} units available.`,
         variant: "destructive",
       });
     } else {
@@ -34,19 +35,19 @@ export function ProductActions({ product }: ProductActionsProps) {
   };
   
   const handleAddToCart = () => {
-    if (product.stockCount > 0) {
+    if (product.stock > 0) {
       addToCart(product, quantity);
       toast({
         title: `Added to cart!`,
-        description: `${quantity} x ${product.name} has been added.`,
+        description: `${quantity} x ${product.title} has been added.`,
       });
     }
   };
 
   return (
     <div className="space-y-4">
-      {product.stockCount > 0 ? (
-        <Badge variant="secondary">In Stock ({product.stockCount} available)</Badge>
+      {product.stock > 0 ? (
+        <Badge variant="secondary">In Stock ({product.stock} available)</Badge>
       ) : (
         <Badge variant="destructive">Out of Stock</Badge>
       )}
@@ -57,7 +58,7 @@ export function ProductActions({ product }: ProductActionsProps) {
               variant="outline"
               size="icon"
               onClick={() => handleQuantityChange(quantity - 1)}
-              disabled={quantity <= 1 || product.stockCount === 0}
+              disabled={quantity <= 1 || product.stock === 0}
               aria-label="Decrease quantity"
             >
               <Minus className="h-4 w-4" />
@@ -67,16 +68,16 @@ export function ProductActions({ product }: ProductActionsProps) {
               value={quantity}
               onChange={(e) => handleQuantityChange(parseInt(e.target.value, 10))}
               min="1"
-              max={product.stockCount}
+              max={product.stock}
               className="h-10 w-16 text-center"
-              disabled={product.stockCount === 0}
+              disabled={product.stock === 0}
               aria-label="Product quantity"
             />
             <Button
               variant="outline"
               size="icon"
               onClick={() => handleQuantityChange(quantity + 1)}
-              disabled={quantity >= product.stockCount || product.stockCount === 0}
+              disabled={quantity >= product.stock || product.stock === 0}
               aria-label="Increase quantity"
             >
               <Plus className="h-4 w-4" />
@@ -85,7 +86,7 @@ export function ProductActions({ product }: ProductActionsProps) {
         <Button
           size="lg"
           onClick={handleAddToCart}
-          disabled={product.stockCount === 0}
+          disabled={product.stock === 0}
           className="flex-grow bg-accent hover:bg-accent/90 text-accent-foreground"
         >
           <ShoppingCart className="mr-2 h-5 w-5" />

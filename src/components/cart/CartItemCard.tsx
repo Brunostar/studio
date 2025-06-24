@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -22,8 +23,8 @@ export function CartItemCard({ item }: CartItemCardProps) {
     <div className="flex items-center gap-4 p-4 border-b">
       <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border">
         <Image
-          src={item.product.images[0]}
-          alt={item.product.name}
+          src={item.product.images[0] || 'https://placehold.co/600x600.png'}
+          alt={item.product.title}
           fill
           sizes="80px"
           className="object-cover"
@@ -31,7 +32,7 @@ export function CartItemCard({ item }: CartItemCardProps) {
         />
       </div>
       <div className="flex-grow">
-        <h3 className="font-semibold text-md">{item.product.name}</h3>
+        <h3 className="font-semibold text-md">{item.product.title}</h3>
         <p className="text-sm text-muted-foreground">${item.product.price.toFixed(2)}</p>
       </div>
       <div className="flex items-center gap-2">
@@ -40,7 +41,7 @@ export function CartItemCard({ item }: CartItemCardProps) {
           size="icon"
           onClick={() => handleQuantityChange(item.quantity - 1)}
           disabled={item.quantity <= 1}
-          aria-label={`Decrease quantity of ${item.product.name}`}
+          aria-label={`Decrease quantity of ${item.product.title}`}
         >
           <Minus className="h-4 w-4" />
         </Button>
@@ -49,16 +50,16 @@ export function CartItemCard({ item }: CartItemCardProps) {
           value={item.quantity}
           onChange={(e) => handleQuantityChange(parseInt(e.target.value, 10))}
           min="1"
-          max={item.product.stockCount}
+          max={item.product.stock}
           className="h-9 w-14 text-center"
-          aria-label={`Quantity of ${item.product.name}`}
+          aria-label={`Quantity of ${item.product.title}`}
         />
         <Button
           variant="outline"
           size="icon"
           onClick={() => handleQuantityChange(item.quantity + 1)}
-          disabled={item.quantity >= item.product.stockCount}
-          aria-label={`Increase quantity of ${item.product.name}`}
+          disabled={item.quantity >= item.product.stock}
+          aria-label={`Increase quantity of ${item.product.title}`}
         >
           <Plus className="h-4 w-4" />
         </Button>
@@ -69,7 +70,7 @@ export function CartItemCard({ item }: CartItemCardProps) {
         size="icon"
         className="text-destructive hover:text-destructive/80"
         onClick={() => removeFromCart(item.product.id)}
-        aria-label={`Remove ${item.product.name} from cart`}
+        aria-label={`Remove ${item.product.title} from cart`}
       >
         <Trash2 className="h-5 w-5" />
       </Button>
