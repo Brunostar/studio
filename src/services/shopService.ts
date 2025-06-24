@@ -34,16 +34,22 @@ export async function getShopById(shopId: string): Promise<Shop | null> {
 
 export async function getMyShop(vendorId: string, token: string): Promise<Shop | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/shops/vendor/${vendorId}`, {
+    // Fetching shop by vendorId using a query parameter to avoid route conflicts.
+    const res = await fetch(`${API_BASE_URL}/shops?vendorId=${vendorId}`, {
       headers: { Authorization: `Bearer ${token}` },
       cache: 'no-store', // Always fetch the latest shop data for the owner
     });
+    
     if (!res.ok) {
-      if (res.status === 404) return null;
       console.error(`Failed to fetch my shop for vendor ${vendorId}, status:`, res.status);
       return null;
     }
-    return res.json();
+    
+    const data = await res.json();
+    // The endpoint is expected to return an array of shops for the vendor.
+    // We take the first one, as a vendor should only have one shop.
+    return Array.isArray(data) && data.length > 0 ? data[0] : null;
+    
   } catch (error) {
     console.error(`Error fetching my shop for vendor ${vendorId}:`, error);
     return null;
