@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,20 +31,10 @@ type UpdateShopFormValues = z.infer<typeof updateShopFormSchema>;
 
 export default function UpdateShopPage() {
   const router = useRouter();
-  const { user, loading: authLoading, shop, isVendor, refetchUserProfile } = useAuth();
+  const { user, loading: authLoading, shop, refetchUserProfile } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasAttemptedRefetch, setHasAttemptedRefetch] = useState(false);
-
-  // If auth is loaded, we have a user, but no shop data, and we haven't tried fetching yet...
-  useEffect(() => {
-    if (!authLoading && user && !shop && !hasAttemptedRefetch) {
-      // ...then this component is likely loading right after shop creation.
-      // Let's fetch the user/shop profile again to get the latest data.
-      setHasAttemptedRefetch(true);
-      refetchUserProfile();
-    }
-  }, [authLoading, user, shop, hasAttemptedRefetch, refetchUserProfile]);
+  const [isFetchingPageData, setIsFetchingPageData] = useState(true);
 
   const form = useForm<UpdateShopFormValues>({
     resolver: zodResolver(updateShopFormSchema),
@@ -58,12 +49,28 @@ export default function UpdateShopPage() {
   });
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login');
+    // This effect runs when the global auth state is settled.
+    if (!authLoading) {
+      if (user) {
+        // If we have a user but no shop data in the context, it might be stale.
+        // This is common right after shop creation. Let's refetch it.
+        if (!shop) {
+          refetchUserProfile().finally(() => {
+            setIsFetchingPageData(false);
+          });
+        } else {
+          // We already have user and shop data, we can stop the page-specific loading.
+          setIsFetchingPageData(false);
+        }
+      } else {
+        // No user is logged in, redirect them.
+        router.push('/login');
+      }
     }
-  }, [user, authLoading, router]);
+  }, [authLoading, user, shop, refetchUserProfile, router]);
 
   useEffect(() => {
+    // This effect populates the form once we have the definitive shop data.
     if (shop) {
       form.reset({
         name: shop.name || '',
@@ -87,13 +94,15 @@ export default function UpdateShopPage() {
       const token = await user.getIdToken();
       await updateShop(data, token);
 
+      // Refresh the user profile in the context to get the latest shop data.
+      await refetchUserProfile();
+
       toast({
         title: 'Shop Updated!',
         description: 'Your shop information has been successfully updated.',
       });
       
       router.push(`/shops/${shop.id}`);
-      router.refresh(); // Force a refresh to reflect changes
     } catch (error: any) {
       toast({
         title: 'Update Failed',
@@ -105,7 +114,8 @@ export default function UpdateShopPage() {
     }
   }
 
-  if (authLoading || !shop) {
+  // Show a skeleton loader while the auth context is loading OR we are fetching data for this page.
+  if (isFetchingPageData) {
     return (
       <div className="container mx-auto px-4 py-8">
         <Card className="max-w-2xl mx-auto">
@@ -127,13 +137,35 @@ export default function UpdateShopPage() {
     );
   }
 
+  // If, after all loading, we still don't have shop data, the user can't edit anything.
+  if (!shop) {
+    return (
+       <div className="container mx-auto px-4 py-8 flex items-center justify-center" style={{ minHeight: 'calc(100vh - 200px)'}}>
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <CardTitle>Shop Not Found</CardTitle>
+            <CardDescription>
+              We couldn't find your shop details. You might need to create one first.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+             <Button asChild>
+                <Link href="/vendor/create-shop">Create Your Shop</Link>
+              </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // If all checks pass, render the form.
   return (
     <div className="container mx-auto px-4 py-8">
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle className="text-2xl">Update Your Shop</CardTitle>
           <CardDescription>
-            { isVendor && !shop.location ? 'Your shop is almost ready! Please complete your profile to make it visible to customers.' : 'Edit your shop information below.' }
+            { !shop.location ? 'Your shop is almost ready! Please complete your profile to make it visible to customers.' : 'Edit your shop information below.' }
           </CardDescription>
         </CardHeader>
         <CardContent>
