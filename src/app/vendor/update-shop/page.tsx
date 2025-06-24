@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,7 +9,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { updateShop } from '@/services/shopService';
+import { getMyShop, updateShop } from '@/services/shopService';
+import type { Shop } from '@/types';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,9 +33,10 @@ type UpdateShopFormValues = z.infer<typeof updateShopFormSchema>;
 
 export default function UpdateShopPage() {
   const router = useRouter();
-  const { user, loading: authLoading, shop, refetchUserProfile } = useAuth();
+  const { user, loading: authLoading, refetchUserProfile } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pageShop, setPageShop] = useState<Shop | null>(null);
   const [isFetchingPageData, setIsFetchingPageData] = useState(true);
 
   const form = useForm<UpdateShopFormValues>({
@@ -49,42 +52,48 @@ export default function UpdateShopPage() {
   });
 
   useEffect(() => {
-    // This effect runs when the global auth state is settled.
-    if (!authLoading) {
+    // This effect fetches the shop data specifically for this page.
+    const fetchPageData = async () => {
       if (user) {
-        // If we have a user but no shop data in the context, it might be stale.
-        // This is common right after shop creation. Let's refetch it.
-        if (!shop) {
-          refetchUserProfile().finally(() => {
-            setIsFetchingPageData(false);
-          });
-        } else {
-          // We already have user and shop data, we can stop the page-specific loading.
+        try {
+          const token = await user.getIdToken();
+          const shopData = await getMyShop(user.uid, token);
+          setPageShop(shopData);
+        } catch (error) {
+          console.error("Failed to fetch shop data for update page", error);
+          setPageShop(null);
+        } finally {
           setIsFetchingPageData(false);
         }
+      }
+    };
+  
+    if (!authLoading) {
+      if (user) {
+        fetchPageData();
       } else {
         // No user is logged in, redirect them.
         router.push('/login');
       }
     }
-  }, [authLoading, user, shop, refetchUserProfile, router]);
+  }, [authLoading, user, router]);
 
   useEffect(() => {
-    // This effect populates the form once we have the definitive shop data.
-    if (shop) {
+    // This effect populates the form once we have the page-specific shop data.
+    if (pageShop) {
       form.reset({
-        name: shop.name || '',
-        description: shop.description || '',
-        whatsappNumber: shop.whatsappNumber || '',
-        location: shop.location || '',
-        logoUrl: shop.logoUrl || '',
-        coverPhotoUrl: shop.coverPhotoUrl || '',
+        name: pageShop.name || '',
+        description: pageShop.description || '',
+        whatsappNumber: pageShop.whatsappNumber || '',
+        location: pageShop.location || '',
+        logoUrl: pageShop.logoUrl || '',
+        coverPhotoUrl: pageShop.coverPhotoUrl || '',
       });
     }
-  }, [shop, form]);
+  }, [pageShop, form]);
 
   async function onSubmit(data: UpdateShopFormValues) {
-    if (!user || !shop) {
+    if (!user || !pageShop) {
       toast({ title: 'Authentication error. Please log in again.', variant: 'destructive' });
       return;
     }
@@ -92,9 +101,9 @@ export default function UpdateShopPage() {
     setIsSubmitting(true);
     try {
       const token = await user.getIdToken();
-      await updateShop(shop.id, data, token);
+      await updateShop(pageShop.id, data, token);
 
-      // Refresh the user profile in the context to get the latest shop data.
+      // Refresh the user profile in the context to get the latest shop data for other pages.
       await refetchUserProfile();
 
       toast({
@@ -102,7 +111,7 @@ export default function UpdateShopPage() {
         description: 'Your shop information has been successfully updated.',
       });
       
-      router.push(`/shops/${shop.id}`);
+      router.push(`/shops/${pageShop.id}`);
     } catch (error: any) {
       toast({
         title: 'Update Failed',
@@ -115,7 +124,7 @@ export default function UpdateShopPage() {
   }
 
   // Show a skeleton loader while the auth context is loading OR we are fetching data for this page.
-  if (isFetchingPageData) {
+  if (authLoading || isFetchingPageData) {
     return (
       <div className="container mx-auto px-4 py-8">
         <Card className="max-w-2xl mx-auto">
@@ -138,7 +147,7 @@ export default function UpdateShopPage() {
   }
 
   // If, after all loading, we still don't have shop data, the user can't edit anything.
-  if (!shop) {
+  if (!pageShop) {
     return (
        <div className="container mx-auto px-4 py-8 flex items-center justify-center" style={{ minHeight: 'calc(100vh - 200px)'}}>
         <Card className="w-full max-w-md text-center">
@@ -165,7 +174,7 @@ export default function UpdateShopPage() {
         <CardHeader>
           <CardTitle className="text-2xl">Update Your Shop</CardTitle>
           <CardDescription>
-            { !shop.location ? 'Your shop is almost ready! Please complete your profile to make it visible to customers.' : 'Edit your shop information below.' }
+            { !pageShop.location ? 'Your shop is almost ready! Please complete your profile to make it visible to customers.' : 'Edit your shop information below.' }
           </CardDescription>
         </CardHeader>
         <CardContent>
