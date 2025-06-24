@@ -34,14 +34,14 @@ export async function getProductById(productId: string): Promise<Product | null>
 }
 
 export async function getProductsByShopId(shopId: string): Promise<Product[]> {
+  // The backend endpoint for this seems to be causing a 500 error.
+  // As a robust fallback, this implementation fetches all products and filters
+  // them by vendorId on the client-side. This is inefficient for a large number
+  // of products, but it avoids the server error.
   try {
-    const res = await fetch(`${API_BASE_URL}/products/shop/${shopId}`, { next: { revalidate: 60 } });
-    if (!res.ok) {
-      console.error(`Failed to fetch products for shop ${shopId}, status:`, res.status);
-      return [];
-    }
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
+    const allProducts = await getAllProducts();
+    // The shopId passed here is the vendorId
+    return allProducts.filter(product => product.vendorId === shopId);
   } catch (error) {
     console.error(`Error fetching products for shop ${shopId}:`, error);
     return [];
