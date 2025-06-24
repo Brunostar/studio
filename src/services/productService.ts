@@ -47,3 +47,29 @@ export async function getProductsByShopId(shopId: string): Promise<Product[]> {
     return [];
   }
 }
+
+export async function createProduct(
+  productData: Omit<Product, 'id' | 'shopId' | 'vendorId' | 'createdAt' | 'isPopular'>,
+  token: string
+): Promise<Product> {
+  const res = await fetch(`${API_BASE_URL}/products`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(productData),
+  });
+
+  if (!res.ok) {
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to create product.');
+    } else {
+        const textError = await res.text();
+        throw new Error(`Server error: ${res.status} ${res.statusText} - ${textError}`);
+    }
+  }
+  return res.json();
+}

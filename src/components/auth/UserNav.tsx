@@ -48,7 +48,7 @@ export function UserNav() {
           <>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <Link href="/vendor/orders">
+              <Link href="/vendor/dashboard">
                 <DropdownMenuItem>
                   <Store className="mr-2 h-4 w-4" />
                   <span>Vendor Dashboard</span>
