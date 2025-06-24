@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,13 +12,15 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { getMyShop, updateShop } from '@/services/shopService';
 import type { Shop } from '@/types';
+import { storage } from '@/lib/firebase';
+import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Upload } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const updateShopFormSchema = z.object({
@@ -25,8 +28,8 @@ const updateShopFormSchema = z.object({
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
   whatsappNumber: z.string().min(10, 'Please enter a valid WhatsApp number.'),
   location: z.string().min(3, 'Please enter a valid location.'),
-  logoUrl: z.string().url('Please enter a valid URL for the logo.'),
-  coverPhotoUrl: z.string().url('Please enter a valid URL for the cover photo.'),
+  logoUrl: z.any(), // Can be a string (URL) or a File object
+  coverPhotoUrl: z.any(), // Can be a string (URL) or a File object
 });
 
 type UpdateShopFormValues = z.infer<typeof updateShopFormSchema>;
@@ -38,6 +41,9 @@ export default function UpdateShopPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pageShop, setPageShop] = useState<Shop | null>(null);
   const [isFetchingPageData, setIsFetchingPageData] = useState(true);
+
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
   const form = useForm<UpdateShopFormValues>({
     resolver: zodResolver(updateShopFormSchema),
@@ -52,7 +58,6 @@ export default function UpdateShopPage() {
   });
 
   useEffect(() => {
-    // This effect fetches the shop data specifically for this page.
     const fetchPageData = async () => {
       if (user) {
         try {
@@ -72,14 +77,12 @@ export default function UpdateShopPage() {
       if (user) {
         fetchPageData();
       } else {
-        // No user is logged in, redirect them.
         router.push('/login');
       }
     }
   }, [authLoading, user, router]);
 
   useEffect(() => {
-    // This effect populates the form once we have the page-specific shop data.
     if (pageShop) {
       form.reset({
         name: pageShop.name || '',
@@ -89,8 +92,17 @@ export default function UpdateShopPage() {
         logoUrl: pageShop.logoUrl || '',
         coverPhotoUrl: pageShop.coverPhotoUrl || '',
       });
+      setLogoPreview(pageShop.logoUrl || null);
+      setCoverPreview(pageShop.coverPhotoUrl || null);
     }
   }, [pageShop, form]);
+
+  const uploadFile = async (file: File, path: string): Promise<string> => {
+    if (!storage) throw new Error("Firebase Storage not configured.");
+    const fileRef = storageRef(storage, path);
+    const snapshot = await uploadBytesResumable(fileRef, file);
+    return getDownloadURL(snapshot.ref);
+  };
 
   async function onSubmit(data: UpdateShopFormValues) {
     if (!user || !pageShop) {
@@ -101,9 +113,31 @@ export default function UpdateShopPage() {
     setIsSubmitting(true);
     try {
       const token = await user.getIdToken();
-      await updateShop(pageShop.id, data, token);
+      let finalLogoUrl = pageShop.logoUrl || '';
+      let finalCoverPhotoUrl = pageShop.coverPhotoUrl || '';
 
-      // Refresh the user profile in the context to get the latest shop data for other pages.
+      if (data.logoUrl instanceof File) {
+        toast({ title: 'Uploading Logo...', description: 'Please wait.' });
+        const logoPath = `shops/${user.uid}/logo-${Date.now()}`;
+        finalLogoUrl = await uploadFile(data.logoUrl, logoPath);
+      }
+
+      if (data.coverPhotoUrl instanceof File) {
+        toast({ title: 'Uploading Cover Photo...', description: 'Please wait.' });
+        const coverPath = `shops/${user.uid}/cover-${Date.now()}`;
+        finalCoverPhotoUrl = await uploadFile(data.coverPhotoUrl, coverPath);
+      }
+
+      const updateData = {
+        name: data.name,
+        description: data.description,
+        whatsappNumber: data.whatsappNumber,
+        location: data.location,
+        logoUrl: finalLogoUrl,
+        coverPhotoUrl: finalCoverPhotoUrl,
+      };
+
+      await updateShop(pageShop.id, updateData, token);
       await refetchUserProfile();
 
       toast({
@@ -123,7 +157,6 @@ export default function UpdateShopPage() {
     }
   }
 
-  // Show a skeleton loader while the auth context is loading OR we are fetching data for this page.
   if (authLoading || isFetchingPageData) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -146,7 +179,6 @@ export default function UpdateShopPage() {
     );
   }
 
-  // If, after all loading, we still don't have shop data, the user can't edit anything.
   if (!pageShop) {
     return (
        <div className="container mx-auto px-4 py-8 flex items-center justify-center" style={{ minHeight: 'calc(100vh - 200px)'}}>
@@ -167,7 +199,6 @@ export default function UpdateShopPage() {
     );
   }
 
-  // If all checks pass, render the form.
   return (
     <div className="container mx-auto px-4 py-8">
       <Card className="max-w-2xl mx-auto">
@@ -192,12 +223,70 @@ export default function UpdateShopPage() {
               <FormField name="location" control={form.control} render={({ field }) => (
                 <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="e.g., Silicon Valley, CA" {...field} /></FormControl><FormMessage /></FormItem>
               )} />
-              <FormField name="logoUrl" control={form.control} render={({ field }) => (
-                <FormItem><FormLabel>Logo URL</FormLabel><FormControl><Input placeholder="https://example.com/logo.png" {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField name="coverPhotoUrl" control={form.control} render={({ field }) => (
-                <FormItem><FormLabel>Cover Photo URL</FormLabel><FormControl><Input placeholder="https://example.com/cover.png" {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
+              
+              <FormField
+                control={form.control}
+                name="logoUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Shop Logo</FormLabel>
+                    <div className="flex items-center gap-4">
+                      {logoPreview ? (
+                        <Image src={logoPreview} alt="Logo preview" width={80} height={80} className="object-cover rounded-md aspect-square bg-muted" />
+                      ) : (
+                        <div className="w-20 h-20 bg-muted rounded-md flex items-center justify-center">
+                          <Upload className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                      )}
+                      <FormControl>
+                        <Input 
+                          type="file" 
+                          accept="image/png, image/jpeg, image/webp"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              field.onChange(file);
+                              setLogoPreview(URL.createObjectURL(file));
+                            }
+                          }}
+                          className="flex-1"
+                        />
+                      </FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="coverPhotoUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cover Photo</FormLabel>
+                     {coverPreview && (
+                        <div className="relative w-full aspect-[2/1] mb-2">
+                           <Image src={coverPreview} alt="Cover photo preview" layout="fill" className="object-cover rounded-md bg-muted" />
+                        </div>
+                      )}
+                    <FormControl>
+                      <Input 
+                        type="file" 
+                        accept="image/png, image/jpeg, image/webp"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            field.onChange(file);
+                            setCoverPreview(URL.createObjectURL(file));
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save Changes
