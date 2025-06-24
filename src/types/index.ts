@@ -22,7 +22,7 @@ export interface Shop {
   isFeatured?: boolean;
   dataAiHintCoverPhoto?: string;
   dataAiHintLogo?: string;
-  vendorId?: string; // The ID of the user who owns the shop
+  vendorId: string; // The ID of the user who owns the shop
   approved?: boolean; // Is the shop approved by an admin
 }
 

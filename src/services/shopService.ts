@@ -34,21 +34,18 @@ export async function getShopById(shopId: string): Promise<Shop | null> {
 
 export async function getMyShop(vendorId: string, token: string): Promise<Shop | null> {
   try {
-    // Fetching shop by vendorId using a query parameter to avoid route conflicts.
-    const res = await fetch(`${API_BASE_URL}/shops?vendorId=${vendorId}`, {
+    const res = await fetch(`${API_BASE_URL}/shops/${vendorId}`, {
       headers: { Authorization: `Bearer ${token}` },
       cache: 'no-store', // Always fetch the latest shop data for the owner
     });
     
     if (!res.ok) {
+      if (res.status === 404) return null;
       console.error(`Failed to fetch my shop for vendor ${vendorId}, status:`, res.status);
       return null;
     }
     
-    const data = await res.json();
-    // The endpoint is expected to return an array of shops for the vendor.
-    // We take the first one, as a vendor should only have one shop.
-    return Array.isArray(data) && data.length > 0 ? data[0] : null;
+    return await res.json();
     
   } catch (error) {
     console.error(`Error fetching my shop for vendor ${vendorId}:`, error);
@@ -56,9 +53,9 @@ export async function getMyShop(vendorId: string, token: string): Promise<Shop |
   }
 }
 
-export async function updateShop(shopId: string, shopData: Partial<Shop>, token: string): Promise<Shop> {
-  const res = await fetch(`${API_BASE_URL}/shops/${shopId}`, {
-    method: 'PATCH',
+export async function updateShop(shopData: Partial<Omit<Shop, 'id'>>, token: string): Promise<Shop> {
+  const res = await fetch(`${API_BASE_URL}/shops`, {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
@@ -72,9 +69,12 @@ export async function updateShop(shopId: string, shopData: Partial<Shop>, token:
       const errorData = await res.json();
       throw new Error(errorData.message || 'Failed to update shop.');
     } else {
-      throw new Error(`Server error: ${res.status} ${res.statusText}`);
+      const textError = await res.text();
+      throw new Error(`Server error: ${res.status} ${res.statusText} - ${textError}`);
     }
   }
 
-  return res.json();
+  const result = await res.json();
+  // The backend returns { message: "...", data: {...} }. We'll return the data part.
+  return result.data;
 }

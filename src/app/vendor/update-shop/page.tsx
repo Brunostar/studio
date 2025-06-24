@@ -27,7 +27,7 @@ const updateShopFormSchema = z.object({
   name: z.string().min(3, { message: 'Shop name must be at least 3 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
   whatsappNumber: z.string().min(10, 'Please enter a valid WhatsApp number.'),
-  location: z.string().min(3, 'Please enter a valid location.'),
+  location: z.string().min(3, 'Please enter a valid location.').optional(),
   logoUrl: z.any(), // Can be a string (URL) or a File object
   coverPhotoUrl: z.any(), // Can be a string (URL) or a File object
 });
@@ -60,10 +60,25 @@ export default function UpdateShopPage() {
   useEffect(() => {
     const fetchPageData = async () => {
       if (user) {
+        setIsFetchingPageData(true);
         try {
           const token = await user.getIdToken();
           const shopData = await getMyShop(user.uid, token);
-          setPageShop(shopData);
+          if (shopData) {
+            setPageShop(shopData);
+            form.reset({
+              name: shopData.name || '',
+              description: shopData.description || '',
+              whatsappNumber: shopData.whatsappNumber || '',
+              location: shopData.location || '',
+              logoUrl: shopData.logoUrl || '',
+              coverPhotoUrl: shopData.coverPhotoUrl || '',
+            });
+            setLogoPreview(shopData.logoUrl || null);
+            setCoverPreview(shopData.coverPhotoUrl || null);
+          } else {
+             setPageShop(null);
+          }
         } catch (error) {
           console.error("Failed to fetch shop data for update page", error);
           setPageShop(null);
@@ -80,32 +95,17 @@ export default function UpdateShopPage() {
         router.push('/login');
       }
     }
-  }, [authLoading, user, router]);
-
-  useEffect(() => {
-    if (pageShop) {
-      form.reset({
-        name: pageShop.name || '',
-        description: pageShop.description || '',
-        whatsappNumber: pageShop.whatsappNumber || '',
-        location: pageShop.location || '',
-        logoUrl: pageShop.logoUrl || '',
-        coverPhotoUrl: pageShop.coverPhotoUrl || '',
-      });
-      setLogoPreview(pageShop.logoUrl || null);
-      setCoverPreview(pageShop.coverPhotoUrl || null);
-    }
-  }, [pageShop, form]);
+  }, [authLoading, user, router, form]);
 
   const uploadFile = async (file: File, path: string): Promise<string> => {
-    if (!storage) throw new Error("Firebase Storage not configured.");
+    if (!storage || !user) throw new Error("Firebase Storage or user not available.");
     const fileRef = storageRef(storage, path);
     const snapshot = await uploadBytesResumable(fileRef, file);
     return getDownloadURL(snapshot.ref);
   };
 
   async function onSubmit(data: UpdateShopFormValues) {
-    if (!user || !pageShop) {
+    if (!user) {
       toast({ title: 'Authentication error. Please log in again.', variant: 'destructive' });
       return;
     }
@@ -113,8 +113,8 @@ export default function UpdateShopPage() {
     setIsSubmitting(true);
     try {
       const token = await user.getIdToken();
-      let finalLogoUrl = pageShop.logoUrl || '';
-      let finalCoverPhotoUrl = pageShop.coverPhotoUrl || '';
+      let finalLogoUrl = pageShop?.logoUrl || '';
+      let finalCoverPhotoUrl = pageShop?.coverPhotoUrl || '';
 
       if (data.logoUrl instanceof File) {
         toast({ title: 'Uploading Logo...', description: 'Please wait.' });
@@ -137,7 +137,7 @@ export default function UpdateShopPage() {
         coverPhotoUrl: finalCoverPhotoUrl,
       };
 
-      await updateShop(pageShop.id, updateData, token);
+      const updatedShop = await updateShop(updateData, token);
       await refetchUserProfile();
 
       toast({
@@ -145,7 +145,7 @@ export default function UpdateShopPage() {
         description: 'Your shop information has been successfully updated.',
       });
       
-      router.push(`/shops/${pageShop.id}`);
+      router.push(`/shops/${updatedShop.vendorId}`);
     } catch (error: any) {
       toast({
         title: 'Update Failed',
