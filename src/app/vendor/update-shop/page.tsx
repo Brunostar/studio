@@ -92,7 +92,7 @@ export default function UpdateShopPage() {
     setIsSubmitting(true);
     try {
       const token = await user.getIdToken();
-      await updateShop(data, token);
+      await updateShop(shop.id, data, token);
 
       // Refresh the user profile in the context to get the latest shop data.
       await refetchUserProfile();

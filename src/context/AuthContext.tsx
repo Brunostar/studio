@@ -49,7 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const role = profile.role || 'customer';
         setUserRole(role);
         if (role === 'vendor') {
-          const myShop = await getMyShop(token);
+          const myShop = await getMyShop(user.uid, token);
           setShop(myShop);
         } else {
           setShop(null);
@@ -89,9 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refetchUserProfile = useCallback(async () => {
     if (auth?.currentUser) {
-      setLoading(true);
       await fetchProfileAndShop(auth.currentUser);
-      setLoading(false);
     }
   }, [fetchProfileAndShop]);
 

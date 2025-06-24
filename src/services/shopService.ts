@@ -32,26 +32,26 @@ export async function getShopById(shopId: string): Promise<Shop | null> {
   }
 }
 
-export async function getMyShop(token: string): Promise<Shop | null> {
+export async function getMyShop(vendorId: string, token: string): Promise<Shop | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/shops/my-shop`, {
+    const res = await fetch(`${API_BASE_URL}/shops/${vendorId}`, {
       headers: { Authorization: `Bearer ${token}` },
       cache: 'no-store', // Always fetch the latest shop data for the owner
     });
     if (!res.ok) {
       if (res.status === 404) return null;
-      console.error('Failed to fetch my shop, status:', res.status);
+      console.error(`Failed to fetch my shop for vendor ${vendorId}, status:`, res.status);
       return null;
     }
     return res.json();
   } catch (error) {
-    console.error('Error fetching my shop:', error);
+    console.error(`Error fetching my shop for vendor ${vendorId}:`, error);
     return null;
   }
 }
 
-export async function updateShop(shopData: Partial<Shop>, token: string): Promise<Shop> {
-  const res = await fetch(`${API_BASE_URL}/shops/my-shop`, {
+export async function updateShop(shopId: string, shopData: Partial<Shop>, token: string): Promise<Shop> {
+  const res = await fetch(`${API_BASE_URL}/shops/${shopId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
