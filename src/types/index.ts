@@ -22,7 +22,8 @@ export interface Shop {
   isFeatured?: boolean;
   dataAiHintCoverPhoto?: string;
   dataAiHintLogo?: string;
-  userId?: string; // The ID of the user who owns the shop
+  vendorId?: string; // The ID of the user who owns the shop
+  approved?: boolean; // Is the shop approved by an admin
 }
 
 export interface CartItem {

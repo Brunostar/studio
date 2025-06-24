@@ -84,12 +84,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsubscribe();
   }, []);
 
+  const isVendor = userRole === 'vendor' && !!shop?.approved;
+
   useEffect(() => {
     const isVendorRoute = pathname.startsWith('/vendor/');
     if (!loading && userRole === 'vendor' && shop && !isShopProfileComplete(shop) && isVendorRoute && pathname !== '/vendor/update-shop') {
-      router.push('/vendor/update-shop');
+       if (shop.approved) { // Only redirect if shop is approved but profile is incomplete
+         router.push('/vendor/update-shop');
+       }
     }
-  }, [loading, userRole, shop, pathname, router]);
+  }, [loading, userRole, shop, pathname, router, isVendor]);
 
   const login = (email: string, pass: string) => {
     if (!firebaseConfigIsValid || !auth) {
@@ -143,8 +147,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await firebaseSignOut(auth);
     router.push('/');
   };
-
-  const isVendor = userRole === 'vendor';
 
   const value = { user, loading, login, signup, logout, isFirebaseEnabled: firebaseConfigIsValid, isVendor, shop, isShopProfileComplete: isShopProfileComplete(shop) };
 
