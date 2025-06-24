@@ -72,9 +72,10 @@ export default function CreateShopPage() {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to create shop. Please try again.');
       }
-
-      // Refetch user profile and shop details before redirecting
-      await refetchUserProfile();
+      
+      // The destination page will handle refetching data.
+      // We can trigger a non-awaited refetch here to update the context in the background.
+      refetchUserProfile();
 
       toast({
         title: 'Shop Submitted for Review!',

@@ -30,9 +30,20 @@ type UpdateShopFormValues = z.infer<typeof updateShopFormSchema>;
 
 export default function UpdateShopPage() {
   const router = useRouter();
-  const { user, loading: authLoading, shop, isVendor } = useAuth();
+  const { user, loading: authLoading, shop, isVendor, refetchUserProfile } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasAttemptedRefetch, setHasAttemptedRefetch] = useState(false);
+
+  // If auth is loaded, we have a user, but no shop data, and we haven't tried fetching yet...
+  useEffect(() => {
+    if (!authLoading && user && !shop && !hasAttemptedRefetch) {
+      // ...then this component is likely loading right after shop creation.
+      // Let's fetch the user/shop profile again to get the latest data.
+      setHasAttemptedRefetch(true);
+      refetchUserProfile();
+    }
+  }, [authLoading, user, shop, hasAttemptedRefetch, refetchUserProfile]);
 
   const form = useForm<UpdateShopFormValues>({
     resolver: zodResolver(updateShopFormSchema),
