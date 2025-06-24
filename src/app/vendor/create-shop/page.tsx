@@ -69,13 +69,16 @@ export default function CreateShopPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create shop. Please try again.');
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to create shop. Please try again.');
+        } else {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
       }
       
-      // The destination page will handle refetching data.
-      // We can trigger a non-awaited refetch here to update the context in the background.
-      refetchUserProfile();
+      await refetchUserProfile();
 
       toast({
         title: 'Shop Submitted for Review!',

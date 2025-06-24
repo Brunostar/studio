@@ -89,7 +89,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refetchUserProfile = useCallback(async () => {
     if (auth?.currentUser) {
+      setLoading(true);
       await fetchProfileAndShop(auth.currentUser);
+      setLoading(false);
     }
   }, [fetchProfileAndShop]);
 
@@ -134,9 +136,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        await userCredential.user.delete();
-        throw new Error(errorData.message || 'Failed to register user on the backend. Please try again.');
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            const errorData = await response.json();
+            await userCredential.user.delete();
+            throw new Error(errorData.message || 'Failed to register user on the backend. Please try again.');
+        } else {
+            await userCredential.user.delete();
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
       }
       return userCredential;
     } catch (error) {

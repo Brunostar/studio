@@ -34,7 +34,7 @@ export async function getShopById(shopId: string): Promise<Shop | null> {
 
 export async function getMyShop(vendorId: string, token: string): Promise<Shop | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/shops/${vendorId}`, {
+    const res = await fetch(`${API_BASE_URL}/shops/vendor/${vendorId}`, {
       headers: { Authorization: `Bearer ${token}` },
       cache: 'no-store', // Always fetch the latest shop data for the owner
     });
@@ -61,8 +61,13 @@ export async function updateShop(shopId: string, shopData: Partial<Shop>, token:
   });
 
   if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || 'Failed to update shop.');
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || 'Failed to update shop.');
+    } else {
+      throw new Error(`Server error: ${res.status} ${res.statusText}`);
+    }
   }
 
   return res.json();
