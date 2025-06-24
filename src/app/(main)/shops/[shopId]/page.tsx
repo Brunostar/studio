@@ -20,13 +20,14 @@ export async function generateStaticParams() {
 }
 
 export default async function ShopPage({ params }: ShopPageParams) {
-  const shop: Shop | null = await getShopById(params.shopId);
+  const { shopId } = params;
+  const shop: Shop | null = await getShopById(shopId);
   
   if (!shop) {
     notFound();
   }
 
-  const shopProducts: Product[] = PRODUCTS.filter(p => p.shopId === params.shopId);
+  const shopProducts: Product[] = PRODUCTS.filter(p => p.shopId === shopId);
 
   return (
     <div className="container mx-auto px-4 py-8">

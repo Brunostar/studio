@@ -40,7 +40,8 @@ async function AiDescription({ product }: { product: Product }) {
 }
 
 export default async function ProductPage({ params }: ProductPageParams) {
-  const product = PRODUCTS.find(p => p.id === params.productId);
+  const { productId } = params;
+  const product = PRODUCTS.find(p => p.id === productId);
   
   if (!product) {
     notFound();
