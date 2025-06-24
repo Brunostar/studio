@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { onAuthStateChanged, User, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, firebaseConfigIsValid } from '@/lib/firebase';
 import { usePathname, useRouter } from 'next/navigation';
@@ -17,6 +17,7 @@ interface AuthContextType {
   isVendor: boolean;
   shop: Shop | null;
   isShopProfileComplete: boolean;
+  refetchUserProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,6 +37,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const router = useRouter();
   const pathname = usePathname();
 
+  const fetchProfileAndShop = useCallback(async (user: User) => {
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch('https://e-electro-backend.onrender.com/api/users/profile', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const profile = await response.json();
+        const role = profile.role || 'customer';
+        setUserRole(role);
+        if (role === 'vendor') {
+          const myShop = await getMyShop(token);
+          setShop(myShop);
+        } else {
+          setShop(null);
+        }
+      } else {
+        setUserRole('customer');
+        setShop(null);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error);
+      setUserRole('customer');
+      setShop(null);
+    }
+  }, []);
+
   useEffect(() => {
     if (!firebaseConfigIsValid || !auth) {
       if (!firebaseConfigIsValid) {
@@ -45,36 +74,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
     
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
-      if (user) {
-        try {
-          const token = await user.getIdToken();
-          const response = await fetch('https://e-electro-backend.onrender.com/api/users/profile', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-
-          if (response.ok) {
-            const profile = await response.json();
-            const role = profile.role || 'customer';
-            setUserRole(role);
-            if (role === 'vendor') {
-              const myShop = await getMyShop(token);
-              setShop(myShop);
-            } else {
-              setShop(null);
-            }
-          } else {
-            setUserRole('customer');
-            setShop(null);
-          }
-        } catch (error) {
-          console.error("Failed to fetch user profile:", error);
-          setUserRole('customer');
-          setShop(null);
-        }
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        await fetchProfileAndShop(currentUser);
       } else {
         setUserRole(null);
         setShop(null);
@@ -82,7 +85,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [fetchProfileAndShop]);
+
+  const refetchUserProfile = useCallback(async () => {
+    if (auth?.currentUser) {
+      setLoading(true);
+      await fetchProfileAndShop(auth.currentUser);
+      setLoading(false);
+    }
+  }, [fetchProfileAndShop]);
 
   const isVendor = userRole === 'vendor' && !!shop?.approved;
 
@@ -148,7 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     router.push('/');
   };
 
-  const value = { user, loading, login, signup, logout, isFirebaseEnabled: firebaseConfigIsValid, isVendor, shop, isShopProfileComplete: isShopProfileComplete(shop) };
+  const value = { user, loading, login, signup, logout, isFirebaseEnabled: firebaseConfigIsValid, isVendor, shop, isShopProfileComplete: isShopProfileComplete(shop), refetchUserProfile };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

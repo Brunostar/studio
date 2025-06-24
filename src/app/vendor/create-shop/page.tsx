@@ -26,7 +26,7 @@ type CreateShopFormValues = z.infer<typeof createShopFormSchema>;
 
 export default function CreateShopPage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading, refetchUserProfile } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -72,6 +72,9 @@ export default function CreateShopPage() {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to create shop. Please try again.');
       }
+
+      // Refetch user profile and shop details before redirecting
+      await refetchUserProfile();
 
       toast({
         title: 'Shop Submitted for Review!',
