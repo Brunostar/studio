@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { Package2 } from 'lucide-react';
 import { NavLink } from './NavLink';
@@ -19,7 +20,7 @@ export function AppHeader() {
           <NavLink href="/">Home</NavLink>
           <NavLink href="/products">Products</NavLink>
           <NavLink href="/shops">Shops</NavLink>
-          <NavLink href="/vendor/orders">Vendor Orders</NavLink>
+          <NavLink href="/vendor/dashboard">Vendor Dashboard</NavLink>
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-4">
           <div className="w-full flex-1 md:w-auto md:flex-none">

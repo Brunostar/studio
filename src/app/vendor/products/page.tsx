@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from '@/components/ui/skeleton';
-import { PlusCircle, ShoppingBag } from 'lucide-react';
+import { PlusCircle, ShoppingBag, Lock } from 'lucide-react';
 
 export default function VendorProductsPage() {
   const { user, loading, isVendor } = useAuth();
@@ -43,8 +43,8 @@ export default function VendorProductsPage() {
   
   if (loading || isFetchingProducts) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
           <Skeleton className="h-8 w-64" />
           <Skeleton className="h-10 w-36" />
         </div>
@@ -62,10 +62,13 @@ export default function VendorProductsPage() {
 
   if (!isVendor) {
      return (
-       <div className="container mx-auto px-4 py-8 flex items-center justify-center" style={{ minHeight: 'calc(100vh - 200px)'}}>
+       <div className="flex items-center justify-center">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
-            <CardTitle>Access Denied</CardTitle>
+            <CardTitle className="flex items-center justify-center gap-2">
+              <Lock className="h-5 w-5" />
+              Access Denied
+            </CardTitle>
             <CardDescription>
               You must be an approved vendor to manage products.
             </CardDescription>
@@ -76,8 +79,8 @@ export default function VendorProductsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold font-headline text-primary">Your Products</h1>
           <p className="text-muted-foreground">A list of all products in your shop.</p>

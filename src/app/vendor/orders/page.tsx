@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect } from 'react';
@@ -24,8 +25,8 @@ export default function VendorOrdersPage() {
   
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8 text-center font-headline text-primary">Your Orders & Inquiries</h1>
+      <div className="space-y-4">
+        <h1 className="text-3xl font-bold font-headline text-primary">Your Orders & Inquiries</h1>
         <Skeleton className="h-96 w-full" />
       </div>
     )
@@ -33,7 +34,7 @@ export default function VendorOrdersPage() {
 
   if (!isVendor) {
     return (
-       <div className="container mx-auto px-4 py-8 flex items-center justify-center" style={{ minHeight: 'calc(100vh - 200px)'}}>
+       <div className="flex items-center justify-center">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
             <CardTitle className="flex items-center justify-center gap-2">
@@ -54,8 +55,8 @@ export default function VendorOrdersPage() {
   const vendorOrders: Order[] = ORDERS; 
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center font-headline text-primary">Your Orders & Inquiries</h1>
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold font-headline text-primary">Your Orders & Inquiries</h1>
       
       {vendorOrders.length === 0 ? (
         <p className="text-center text-muted-foreground py-8">You have no orders or inquiries yet.</p>

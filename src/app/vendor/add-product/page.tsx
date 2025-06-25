@@ -122,7 +122,7 @@ export default function AddProductPage() {
   
   if (isVendor && !shop?.approved) {
     return (
-       <div className="container mx-auto px-4 py-8 flex items-center justify-center" style={{ minHeight: 'calc(100vh - 200px)'}}>
+       <div className="flex items-center justify-center">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
             <CardTitle className="flex items-center justify-center gap-2">
@@ -140,99 +140,97 @@ export default function AddProductPage() {
 
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-2xl mx-auto">
-        <Link href="/vendor/products" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Products
-        </Link>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Add New Product</CardTitle>
-            <CardDescription>Fill out the form below to add a new product to your shop.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField control={form.control} name="title" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Title</FormLabel>
-                    <FormControl><Input placeholder="e.g., Wireless Noise-Cancelling Headphones" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+    <div className="space-y-6">
+      <Link href="/vendor/products" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
+        <ArrowLeft className="h-4 w-4" />
+        Back to Products
+      </Link>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">Add New Product</CardTitle>
+          <CardDescription>Fill out the form below to add a new product to your shop.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField control={form.control} name="title" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Product Title</FormLabel>
+                  <FormControl><Input placeholder="e.g., Wireless Noise-Cancelling Headphones" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
 
-                <FormField control={form.control} name="description" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Description</FormLabel>
-                    <FormControl><Textarea placeholder="Describe the product's features, benefits, and specifications." className="resize-y" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField control={form.control} name="price" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Price ($)</FormLabel>
-                        <FormControl><Input type="number" step="0.01" placeholder="e.g., 99.99" {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
+              <FormField control={form.control} name="description" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Product Description</FormLabel>
+                  <FormControl><Textarea placeholder="Describe the product's features, benefits, and specifications." className="resize-y" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField control={form.control} name="price" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Price ($)</FormLabel>
+                      <FormControl><Input type="number" step="0.01" placeholder="e.g., 99.99" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
 
-                    <FormField control={form.control} name="stock" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Stock Quantity</FormLabel>
-                        <FormControl><Input type="number" placeholder="e.g., 50" {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                </div>
-                
-                <FormField control={form.control} name="category" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {CATEGORIES.filter(c => c !== 'All').map(category => (
-                            <SelectItem key={category} value={category}>{category}</SelectItem>
-                          ))}
-                        </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+                  <FormField control={form.control} name="stock" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Stock Quantity</FormLabel>
+                      <FormControl><Input type="number" placeholder="e.g., 50" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+              </div>
+              
+              <FormField control={form.control} name="category" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {CATEGORIES.filter(c => c !== 'All').map(category => (
+                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        ))}
+                      </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
 
-                <FormField
-                  control={form.control}
-                  name="images"
-                  render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Images</FormLabel>
-                    <FormControl>
-                        <Input 
-                          type="file" 
-                          accept="image/png, image/jpeg, image/webp"
-                          multiple
-                          onChange={(e) => field.onChange(e.target.files)}
-                        />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                  )}
-                />
+              <FormField
+                control={form.control}
+                name="images"
+                render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Product Images</FormLabel>
+                  <FormControl>
+                      <Input 
+                        type="file" 
+                        accept="image/png, image/jpeg, image/webp"
+                        multiple
+                        onChange={(e) => field.onChange(e.target.files)}
+                      />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+                )}
+              />
 
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {isSubmitting ? 'Creating Product...' : 'Create Product'}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isSubmitting ? 'Creating Product...' : 'Create Product'}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

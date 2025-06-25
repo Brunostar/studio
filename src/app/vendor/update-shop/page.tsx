@@ -20,7 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Upload } from 'lucide-react';
+import { Loader2, Upload, Lock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const updateShopFormSchema = z.object({
@@ -36,7 +36,7 @@ type UpdateShopFormValues = z.infer<typeof updateShopFormSchema>;
 
 export default function UpdateShopPage() {
   const router = useRouter();
-  const { user, loading: authLoading, refetchUserProfile } = useAuth();
+  const { user, loading: authLoading, refetchUserProfile, isVendor } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pageShop, setPageShop] = useState<Shop | null>(null);
@@ -137,7 +137,7 @@ export default function UpdateShopPage() {
         coverPhotoUrl: finalCoverPhotoUrl,
       };
 
-      const updatedShop = await updateShop(updateData, token);
+      await updateShop(updateData, token);
       await refetchUserProfile();
 
       toast({
@@ -145,7 +145,7 @@ export default function UpdateShopPage() {
         description: 'Your shop information has been successfully updated.',
       });
       
-      router.push(`/shops/${updatedShop.vendorId}`);
+      router.push(`/shops/${user.uid}`);
     } catch (error: any) {
       toast({
         title: 'Update Failed',
@@ -159,29 +159,46 @@ export default function UpdateShopPage() {
 
   if (authLoading || isFetchingPageData) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <Card className="max-w-2xl mx-auto">
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-full max-w-sm" />
+        </CardHeader>
+        <CardContent className="space-y-6 pt-6">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          ))}
+          <Skeleton className="h-10 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!isVendor) {
+    return (
+       <div className="flex items-center justify-center">
+        <Card className="w-full max-w-md text-center">
           <CardHeader>
-            <Skeleton className="h-8 w-48" />
-            <Skeleton className="h-4 w-full max-w-sm" />
+            <CardTitle className="flex items-center justify-center gap-2">
+              <Lock className="h-5 w-5" />
+              Access Denied
+            </CardTitle>
+            <CardDescription>
+              You must be a vendor to manage your shop settings.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6 pt-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-10 w-full" />
-              </div>
-            ))}
-            <Skeleton className="h-10 w-full" />
-          </CardContent>
         </Card>
       </div>
     );
   }
 
+
   if (!pageShop) {
     return (
-       <div className="container mx-auto px-4 py-8 flex items-center justify-center" style={{ minHeight: 'calc(100vh - 200px)'}}>
+       <div className="flex items-center justify-center">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
             <CardTitle>Shop Not Found</CardTitle>
@@ -200,75 +217,43 @@ export default function UpdateShopPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle className="text-2xl">Update Your Shop</CardTitle>
-          <CardDescription>
-            { !pageShop.location ? 'Your shop is almost ready! Please complete your profile to make it visible to customers.' : 'Edit your shop information below.' }
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField name="name" control={form.control} render={({ field }) => (
-                <FormItem><FormLabel>Shop Name</FormLabel><FormControl><Input placeholder="e.g., The Gadget Grove" {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField name="description" control={form.control} render={({ field }) => (
-                <FormItem><FormLabel>Shop Description</FormLabel><FormControl><Textarea placeholder="Tell customers about your shop." {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField name="whatsappNumber" control={form.control} render={({ field }) => (
-                <FormItem><FormLabel>WhatsApp Number</FormLabel><FormControl><Input placeholder="+1234567890" {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField name="location" control={form.control} render={({ field }) => (
-                <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="e.g., Silicon Valley, CA" {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
-              
-              <FormField
-                control={form.control}
-                name="logoUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Shop Logo</FormLabel>
-                    <div className="flex items-center gap-4">
-                      {logoPreview ? (
-                        <Image src={logoPreview} alt="Logo preview" width={80} height={80} className="object-cover rounded-md aspect-square bg-muted" />
-                      ) : (
-                        <div className="w-20 h-20 bg-muted rounded-md flex items-center justify-center">
-                          <Upload className="w-8 h-8 text-muted-foreground" />
-                        </div>
-                      )}
-                      <FormControl>
-                        <Input 
-                          type="file" 
-                          accept="image/png, image/jpeg, image/webp"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              field.onChange(file);
-                              setLogoPreview(URL.createObjectURL(file));
-                            }
-                          }}
-                          className="flex-1"
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="coverPhotoUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cover Photo</FormLabel>
-                     {coverPreview && (
-                        <div className="relative w-full aspect-[2/1] mb-2">
-                           <Image src={coverPreview} alt="Cover photo preview" layout="fill" className="object-cover rounded-md bg-muted" />
-                        </div>
-                      )}
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-2xl">Update Your Shop</CardTitle>
+        <CardDescription>
+          { !pageShop.location ? 'Your shop is almost ready! Please complete your profile to make it visible to customers.' : 'Edit your shop information below.' }
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField name="name" control={form.control} render={({ field }) => (
+              <FormItem><FormLabel>Shop Name</FormLabel><FormControl><Input placeholder="e.g., The Gadget Grove" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField name="description" control={form.control} render={({ field }) => (
+              <FormItem><FormLabel>Shop Description</FormLabel><FormControl><Textarea placeholder="Tell customers about your shop." {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField name="whatsappNumber" control={form.control} render={({ field }) => (
+              <FormItem><FormLabel>WhatsApp Number</FormLabel><FormControl><Input placeholder="+1234567890" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField name="location" control={form.control} render={({ field }) => (
+              <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="e.g., Silicon Valley, CA" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            
+            <FormField
+              control={form.control}
+              name="logoUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Shop Logo</FormLabel>
+                  <div className="flex items-center gap-4">
+                    {logoPreview ? (
+                      <Image src={logoPreview} alt="Logo preview" width={80} height={80} className="object-cover rounded-md aspect-square bg-muted" />
+                    ) : (
+                      <div className="w-20 h-20 bg-muted rounded-md flex items-center justify-center">
+                        <Upload className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                    )}
                     <FormControl>
                       <Input 
                         type="file" 
@@ -277,24 +262,54 @@ export default function UpdateShopPage() {
                           const file = e.target.files?.[0];
                           if (file) {
                             field.onChange(file);
-                            setCoverPreview(URL.createObjectURL(file));
+                            setLogoPreview(URL.createObjectURL(file));
                           }
                         }}
+                        className="flex-1"
                       />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Changes
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </div>
+            <FormField
+              control={form.control}
+              name="coverPhotoUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cover Photo</FormLabel>
+                   {coverPreview && (
+                      <div className="relative w-full aspect-[2/1] mb-2">
+                         <Image src={coverPreview} alt="Cover photo preview" layout="fill" className="object-cover rounded-md bg-muted" />
+                      </div>
+                    )}
+                  <FormControl>
+                    <Input 
+                      type="file" 
+                      accept="image/png, image/jpeg, image/webp"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          field.onChange(file);
+                          setCoverPreview(URL.createObjectURL(file));
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save Changes
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 }

@@ -22,28 +22,25 @@ export default function VendorDashboardPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {[...Array(3)].map((_, i) => (
-            <Card key={i}>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <Skeleton className="h-6 w-32" />
-                <Skeleton className="h-8 w-8" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-4 w-4/5" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {[...Array(3)].map((_, i) => (
+          <Card key={i}>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-8 w-8" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-4 w-4/5" />
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   }
 
   if (!isVendor) {
     return (
-      <div className="container mx-auto px-4 py-8 flex items-center justify-center" style={{ minHeight: 'calc(100vh - 200px)'}}>
-        <Card className="w-full max-w-md text-center">
+        <Card className="w-full text-center">
           <CardHeader>
             <CardTitle className="flex items-center justify-center gap-2">
               <Lock className="h-5 w-5" />
@@ -54,19 +51,18 @@ export default function VendorDashboardPage() {
             <p>This dashboard is for vendors. You can create a shop to become a vendor.</p>
           </CardContent>
         </Card>
-      </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold font-headline text-primary">Vendor Dashboard</h1>
-        <p className="text-muted-foreground">Manage your shop, products, and orders.</p>
+    <div className="space-y-6">
+      <div className="mb-4">
+        <h1 className="text-3xl font-bold font-headline text-primary">Dashboard</h1>
+        <p className="text-muted-foreground">An overview of your shop and activities.</p>
       </div>
 
       {shop && !shop.approved && (
-        <Alert className="mb-8 border-yellow-500 text-yellow-700 [&>svg]:text-yellow-500">
+        <Alert className="border-yellow-500 text-yellow-700 [&>svg]:text-yellow-500">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Shop Pending Approval</AlertTitle>
           <AlertDescription>
