@@ -7,7 +7,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Package, ListOrdered, Settings, Lock } from 'lucide-react';
+import { Package, ListOrdered, Settings, Lock, AlertCircle } from 'lucide-react';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 export default function VendorDashboardPage() {
   const { user, loading, isVendor, shop } = useAuth();
@@ -46,11 +47,11 @@ export default function VendorDashboardPage() {
           <CardHeader>
             <CardTitle className="flex items-center justify-center gap-2">
               <Lock className="h-5 w-5" />
-              Access Denied
+              Vendor Access Only
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p>You must be an approved vendor to access this dashboard. You can create a shop to get started.</p>
+            <p>This dashboard is for vendors. You can create a shop to become a vendor.</p>
           </CardContent>
         </Card>
       </div>
@@ -63,6 +64,16 @@ export default function VendorDashboardPage() {
         <h1 className="text-3xl font-bold font-headline text-primary">Vendor Dashboard</h1>
         <p className="text-muted-foreground">Manage your shop, products, and orders.</p>
       </div>
+
+      {shop && !shop.approved && (
+        <Alert className="mb-8 border-yellow-500 text-yellow-700 [&>svg]:text-yellow-500">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Shop Pending Approval</AlertTitle>
+          <AlertDescription>
+            Your shop is currently under review by an administrator. You can update your shop settings, but you won't be able to add products until it's approved.
+          </AlertDescription>
+        </Alert>
+      )}
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card className="hover:shadow-lg transition-shadow">

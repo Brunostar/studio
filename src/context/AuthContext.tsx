@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
@@ -55,6 +56,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setShop(null);
         }
       } else {
+        const errorText = await response.text();
+        console.error(`Failed to fetch user profile. Status: ${response.status}. Body: ${errorText}`);
         setUserRole('customer');
         setShop(null);
       }
@@ -95,7 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [fetchProfileAndShop]);
 
-  const isVendor = userRole === 'vendor' && !!shop?.approved;
+  const isVendor = userRole === 'vendor';
 
   useEffect(() => {
     const isVendorRoute = pathname.startsWith('/vendor/');
@@ -104,7 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
          router.push('/vendor/update-shop');
        }
     }
-  }, [loading, userRole, shop, pathname, router, isVendor]);
+  }, [loading, userRole, shop, pathname, router]);
 
   const login = (email: string, pass: string) => {
     if (!firebaseConfigIsValid || !auth) {

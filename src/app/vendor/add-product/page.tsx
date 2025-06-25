@@ -21,7 +21,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, Lock } from 'lucide-react';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const productFormSchema = z.object({
@@ -42,7 +42,7 @@ type ProductFormValues = z.infer<typeof productFormSchema>;
 
 export default function AddProductPage() {
   const router = useRouter();
-  const { user, loading, isVendor } = useAuth();
+  const { user, loading, isVendor, shop } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -52,16 +52,6 @@ export default function AddProductPage() {
       router.push('/vendor/dashboard');
     }
   }, [user, loading, isVendor, router, toast]);
-
-  const form = useForm<ProductFormValues>({
-    resolver: zodResolver(productFormSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      price: 0,
-      stock: 0,
-    },
-  });
 
   const uploadFile = async (file: File, path: string): Promise<string> => {
     if (!storage) throw new Error("Firebase Storage not configured.");
@@ -117,6 +107,25 @@ export default function AddProductPage() {
       setIsSubmitting(false);
     }
   }
+  
+  if (isVendor && !shop?.approved) {
+    return (
+       <div className="container mx-auto px-4 py-8 flex items-center justify-center" style={{ minHeight: 'calc(100vh - 200px)'}}>
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-center gap-2">
+              <Lock className="h-5 w-5" />
+              Shop Not Approved
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>Your shop is currently pending review. You will be able to add products once your shop has been approved by an administrator.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
 
   return (
     <div className="container mx-auto px-4 py-8">
