@@ -73,3 +73,32 @@ export async function createProduct(
   }
   return res.json();
 }
+
+export async function updateProduct(
+  productId: string,
+  productData: Partial<Omit<Product, 'id' | 'shopId' | 'vendorId' | 'createdAt' | 'isPopular'>>,
+  token: string
+): Promise<Product> {
+  // Assuming a PATCH request to /api/products/:id for updates.
+  // This is a standard RESTful practice.
+  const res = await fetch(`${API_BASE_URL}/products/${productId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(productData),
+  });
+
+  if (!res.ok) {
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to update product.');
+    } else {
+        const textError = await res.text();
+        throw new Error(`Server error: ${res.status} ${res.statusText} - ${textError}`);
+    }
+  }
+  return res.json();
+}

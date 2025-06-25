@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from '@/components/ui/skeleton';
-import { PlusCircle, ShoppingBag, Lock } from 'lucide-react';
+import { PlusCircle, ShoppingBag, Lock, Pencil } from 'lucide-react';
 
 export default function VendorProductsPage() {
   const { user, loading, isVendor } = useAuth();
@@ -118,6 +118,7 @@ export default function VendorProductsPage() {
                   <TableHead>Category</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Stock</TableHead>
+                  <TableHead className="w-[100px] text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -139,6 +140,14 @@ export default function VendorProductsPage() {
                     </TableCell>
                     <TableCell>${product.price.toFixed(2)}</TableCell>
                     <TableCell>{product.stock}</TableCell>
+                    <TableCell className="text-right">
+                       <Button asChild variant="outline" size="icon">
+                        <Link href={`/vendor/edit-product/${product.id}`}>
+                          <Pencil className="h-4 w-4" />
+                          <span className="sr-only">Edit {product.title}</span>
+                        </Link>
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
