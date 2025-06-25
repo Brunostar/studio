@@ -4,7 +4,7 @@ const API_BASE_URL = 'https://e-electro-backend.onrender.com/api';
 
 export async function getAllShops(): Promise<Shop[]> {
   try {
-    const res = await fetch(`${API_BASE_URL}/shops`, { next: { revalidate: 60 } }); // Reduced revalidation time
+    const res = await fetch(`${API_BASE_URL}/shops`, { cache: 'no-store' }); // Use no-store to always get fresh data
     if (!res.ok) {
       console.error('Failed to fetch shops, status:', res.status);
       return [];
