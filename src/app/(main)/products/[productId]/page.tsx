@@ -1,4 +1,5 @@
 
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -13,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
 import { getShopById } from '@/services/shopService';
 import { getProductById } from '@/services/productService';
+import { ProductImageCarousel } from '@/components/products/ProductImageCarousel';
 
 interface ProductPageParams {
   params: { productId: string };
@@ -51,15 +53,11 @@ export default async function ProductPage({ params }: ProductPageParams) {
       </Link>
       <Card className="overflow-hidden shadow-lg">
         <div className="grid md:grid-cols-2">
-          <div className="relative aspect-square">
-            <Image
-              src={product.images[0] || 'https://placehold.co/600x600.png'}
-              alt={product.title}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
-              priority
-              data-ai-hint={product.dataAiHint || "product image"}
+          <div className="p-4 md:p-6">
+            <ProductImageCarousel 
+              images={product.images} 
+              altText={product.title} 
+              dataAiHint={product.dataAiHint}
             />
           </div>
           <div className="flex flex-col">
