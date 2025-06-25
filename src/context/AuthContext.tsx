@@ -26,7 +26,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const isShopProfileComplete = (shop: Shop | null): boolean => {
   if (!shop) return false;
   // A simple check for non-empty strings and non-placeholder URLs
-  return !!(shop.location && shop.logoUrl && shop.coverPhotoUrl && shop.logoUrl !== 'https://placehold.co/100x100.png' && shop.coverPhotoUrl !== 'https://placehold.co/1200x300.png');
+  return !!(shop.location && shop.logoUrl && !shop.logoUrl.includes('placehold.co') && shop.coverPhotoUrl && !shop.coverPhotoUrl.includes('placehold.co'));
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -41,20 +41,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchProfileAndShop = useCallback(async (user: User) => {
     try {
       const token = await user.getIdToken();
-      const myShop = await getMyShop(user.uid, token);
+      
+      const profileResponse = await fetch(`https://e-electro-backend.onrender.com/api/users/${user.uid}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+      });
 
-      if (myShop) {
-        // If a shop exists, the user is a vendor
-        setUserRole('vendor');
-        setShop(myShop);
-      } else {
-        // If no shop exists, the user is a customer
+      if (!profileResponse.ok) {
+        const errorText = await profileResponse.text();
+        console.error(`Failed to fetch user profile. Status: ${profileResponse.status}. Body: ${errorText}`);
         setUserRole('customer');
+        setShop(null);
+        return; // Exit early
+      }
+
+      const userProfile = await profileResponse.json();
+      setUserRole(userProfile.role || 'customer');
+
+      if (userProfile.role === 'vendor') {
+        const shopData = await getMyShop(user.uid, token);
+        setShop(shopData);
+      } else {
         setShop(null);
       }
     } catch (error) {
       console.error("Failed to fetch user/shop data:", error);
-      // Default to customer role on any other error
       setUserRole('customer');
       setShop(null);
     }
@@ -94,15 +105,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const isVendorRoute = pathname.startsWith('/vendor/');
-    if (!loading && isVendor && shop === null && isVendorRoute) {
-      // If the user is a vendor but has no shop object, they might need to create one.
-      // This case is handled on the specific vendor pages.
-    }
     
+    // Redirect vendors with incomplete profiles to update their shop page
     if (!loading && isVendor && shop && !isShopProfileComplete(shop) && isVendorRoute && pathname !== '/vendor/update-shop' && pathname !== '/vendor/create-shop') {
-       if (shop.approved) { // Only redirect if shop is approved but profile is incomplete
-         router.push('/vendor/update-shop');
-       }
+       router.push('/vendor/update-shop');
     }
   }, [loading, isVendor, shop, pathname, router]);
 
@@ -131,7 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({
           name: name,
           email: email,
-          role: 'customer'
+          role: 'customer' // All new signups start as customers
         })
       });
 
