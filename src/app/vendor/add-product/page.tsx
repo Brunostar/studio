@@ -46,6 +46,18 @@ export default function AddProductPage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const form = useForm<ProductFormValues>({
+    resolver: zodResolver(productFormSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      price: 0,
+      stock: 0,
+      category: '',
+      images: undefined,
+    },
+  });
+
   useEffect(() => {
     if (!loading && !isVendor) {
       toast({ title: 'Access Denied', description: 'You must be a vendor to add products.', variant: 'destructive' });
