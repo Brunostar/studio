@@ -1,10 +1,20 @@
 
+'use client';
+
 import Link from 'next/link';
-import { Package2 } from 'lucide-react';
+import { useState } from 'react';
+import { Package2, Menu } from 'lucide-react';
 import { NavLink } from './NavLink';
 import { CartIcon } from '@/components/cart/CartIcon';
 import SearchWithSuggestions from '@/components/search/SearchWithSuggestions';
 import { AuthStatus } from '../auth/AuthStatus';
+import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 
 export function AppHeader() {
   return (
@@ -16,18 +26,46 @@ export function AppHeader() {
             ElectroStore Connect
           </span>
         </Link>
-        <nav className="flex items-center gap-4 text-sm lg:gap-6">
+        <nav className="hidden items-center gap-4 text-sm md:flex lg:gap-6">
           <NavLink href="/">Home</NavLink>
           <NavLink href="/products">Products</NavLink>
           <NavLink href="/shops">Shops</NavLink>
-          <NavLink href="/vendor/dashboard">Vendor Dashboard</NavLink>
         </nav>
-        <div className="flex flex-1 items-center justify-end space-x-4">
+        <div className="flex flex-1 items-center justify-end space-x-2 md:space-x-4">
           <div className="w-full flex-1 md:w-auto md:flex-none">
              <SearchWithSuggestions />
           </div>
-          <CartIcon />
-          <AuthStatus />
+          <div className="hidden md:flex items-center gap-2">
+            <CartIcon />
+            <AuthStatus />
+          </div>
+          <div className="md:hidden">
+             <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+                <nav className="flex flex-col gap-6 text-lg font-medium mt-10">
+                   <SheetClose asChild>
+                      <NavLink href="/">Home</NavLink>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <NavLink href="/products">Products</NavLink>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <NavLink href="/shops">Shops</NavLink>
+                    </SheetClose>
+                    <div className="flex items-center gap-4 pt-4 border-t">
+                      <CartIcon />
+                      <AuthStatus />
+                    </div>
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </header>

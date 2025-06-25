@@ -52,8 +52,8 @@ export function ProductActions({ product }: ProductActionsProps) {
         <Badge variant="destructive">Out of Stock</Badge>
       )}
 
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="flex items-center justify-center gap-2">
            <Button
               variant="outline"
               size="icon"
