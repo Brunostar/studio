@@ -1,3 +1,4 @@
+
 import type { Shop } from '@/types';
 
 const API_BASE_URL = 'https://e-electro-backend.onrender.com/api';
@@ -77,4 +78,22 @@ export async function updateShop(shopData: Partial<Omit<Shop, 'id'>>, token: str
   const result = await res.json();
   // The backend returns { message: "...", data: {...} }. We'll return the data part.
   return result.data;
+}
+
+export async function approveShop(shopId: string, token: string): Promise<Shop> {
+  // We assume a PATCH endpoint to update a specific field, which is a standard REST practice.
+  const res = await fetch(`${API_BASE_URL}/shops/${shopId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ approved: true }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || 'Failed to approve shop.');
+  }
+  return res.json();
 }

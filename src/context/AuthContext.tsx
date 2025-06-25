@@ -16,6 +16,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   isFirebaseEnabled: boolean;
   isVendor: boolean;
+  isAdmin: boolean;
   shop: Shop | null;
   isShopProfileComplete: boolean;
   refetchUserProfile: () => Promise<void>;
@@ -50,15 +51,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!profileResponse.ok) {
         const errorText = await profileResponse.text();
         console.error(`Failed to fetch user profile. Status: ${profileResponse.status}. Body: ${errorText}`);
-        setUserRole('customer');
+        setUserRole('customer'); // Default to customer on error
         setShop(null);
-        return; // Exit early
+        return;
       }
 
       const userProfile = await profileResponse.json();
-      setUserRole(userProfile.role || 'customer');
+      const role = userProfile.role || 'customer';
+      setUserRole(role);
 
-      if (userProfile.role === 'vendor') {
+      if (role === 'vendor') {
         const shopData = await getMyShop(user.uid, token);
         setShop(shopData);
       } else {
@@ -102,6 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [fetchProfileAndShop]);
 
   const isVendor = userRole === 'vendor';
+  const isAdmin = userRole === 'admin';
 
   useEffect(() => {
     const isVendorRoute = pathname.startsWith('/vendor/');
@@ -172,7 +175,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     router.push('/');
   };
 
-  const value = { user, loading, login, signup, logout, isFirebaseEnabled: firebaseConfigIsValid, isVendor, shop, isShopProfileComplete: isShopProfileComplete(shop), refetchUserProfile };
+  const value = { user, loading, login, signup, logout, isFirebaseEnabled: firebaseConfigIsValid, isVendor, isAdmin, shop, isShopProfileComplete: isShopProfileComplete(shop), refetchUserProfile };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

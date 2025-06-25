@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -16,11 +17,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/context/AuthContext"
-import { LogOut, Store } from "lucide-react";
+import { LogOut, Store, Shield } from "lucide-react";
 import Link from "next/link";
 
 export function UserNav() {
-  const { user, logout, isVendor } = useAuth();
+  const { user, logout, isVendor, isAdmin } = useAuth();
 
   if (!user) return null;
 
@@ -44,19 +45,26 @@ export function UserNav() {
           </div>
         </DropdownMenuLabel>
         
-        {isVendor && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <Link href="/vendor/dashboard">
-                <DropdownMenuItem>
-                  <Store className="mr-2 h-4 w-4" />
-                  <span>Vendor Dashboard</span>
-                </DropdownMenuItem>
-              </Link>
-            </DropdownMenuGroup>
-          </>
-        )}
+        <DropdownMenuSeparator />
+        
+        <DropdownMenuGroup>
+          {isAdmin && (
+            <Link href="/admin/dashboard">
+              <DropdownMenuItem>
+                <Shield className="mr-2 h-4 w-4" />
+                <span>Admin Dashboard</span>
+              </DropdownMenuItem>
+            </Link>
+          )}
+          {isVendor && (
+            <Link href="/vendor/dashboard">
+              <DropdownMenuItem>
+                <Store className="mr-2 h-4 w-4" />
+                <span>Vendor Dashboard</span>
+              </DropdownMenuItem>
+            </Link>
+          )}
+        </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout}>
