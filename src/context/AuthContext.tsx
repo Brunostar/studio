@@ -41,7 +41,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchProfileAndShop = useCallback(async (user: User) => {
     try {
       const token = await user.getIdToken();
-      const response = await fetch('https://e-electro-backend.onrender.com/api/users/profile', {
+      // Changed the endpoint to be more RESTful and specific to the user.
+      const response = await fetch(`https://e-electro-backend.onrender.com/api/users/${user.uid}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -102,12 +103,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const isVendorRoute = pathname.startsWith('/vendor/');
-    if (!loading && userRole === 'vendor' && shop && !isShopProfileComplete(shop) && isVendorRoute && pathname !== '/vendor/update-shop') {
+    if (!loading && isVendor && shop === null && isVendorRoute) {
+      // If the user is a vendor but has no shop object, they might need to create one.
+      // This case is handled on the specific vendor pages.
+    }
+    
+    if (!loading && isVendor && shop && !isShopProfileComplete(shop) && isVendorRoute && pathname !== '/vendor/update-shop' && pathname !== '/vendor/create-shop') {
        if (shop.approved) { // Only redirect if shop is approved but profile is incomplete
          router.push('/vendor/update-shop');
        }
     }
-  }, [loading, userRole, shop, pathname, router]);
+  }, [loading, isVendor, shop, pathname, router]);
 
   const login = (email: string, pass: string) => {
     if (!firebaseConfigIsValid || !auth) {
