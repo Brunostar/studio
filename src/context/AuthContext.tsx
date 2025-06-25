@@ -41,29 +41,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchProfileAndShop = useCallback(async (user: User) => {
     try {
       const token = await user.getIdToken();
-      // Changed the endpoint to be more RESTful and specific to the user.
-      const response = await fetch(`https://e-electro-backend.onrender.com/api/users/${user.uid}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const myShop = await getMyShop(user.uid, token);
 
-      if (response.ok) {
-        const profile = await response.json();
-        const role = profile.role || 'customer';
-        setUserRole(role);
-        if (role === 'vendor') {
-          const myShop = await getMyShop(user.uid, token);
-          setShop(myShop);
-        } else {
-          setShop(null);
-        }
+      if (myShop) {
+        // If a shop exists, the user is a vendor
+        setUserRole('vendor');
+        setShop(myShop);
       } else {
-        const errorText = await response.text();
-        console.error(`Failed to fetch user profile. Status: ${response.status}. Body: ${errorText}`);
+        // If no shop exists, the user is a customer
         setUserRole('customer');
         setShop(null);
       }
     } catch (error) {
-      console.error("Failed to fetch user profile:", error);
+      console.error("Failed to fetch user/shop data:", error);
+      // Default to customer role on any other error
       setUserRole('customer');
       setShop(null);
     }
@@ -151,8 +142,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             await userCredential.user.delete();
             throw new Error(errorData.message || 'Failed to register user on the backend. Please try again.');
         } else {
+            const textError = await response.text();
             await userCredential.user.delete();
-            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            throw new Error(`Server error: ${response.status} ${response.statusText} - ${textError}`);
         }
       }
       return userCredential;
