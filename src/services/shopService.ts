@@ -80,15 +80,13 @@ export async function updateShop(shopData: Partial<Omit<Shop, 'id'>>, token: str
   return result.data;
 }
 
-export async function approveShop(shopId: string, token: string): Promise<Shop> {
-  // We assume a PATCH endpoint to update a specific field, which is a standard REST practice.
-  const res = await fetch(`${API_BASE_URL}/shops/${shopId}`, {
-    method: 'PATCH',
+export async function approveShop(vendorId: string, token: string): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE_URL}/shops/${vendorId}/approve`, {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ approved: true }),
   });
 
   if (!res.ok) {
