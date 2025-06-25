@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
-import { Home, LayoutDashboard, ListChecks, Store } from 'lucide-react';
+import { Home, LayoutDashboard, Store, Users } from 'lucide-react';
 
 const sidebarNavItems = [
   {
@@ -17,6 +17,11 @@ const sidebarNavItems = [
     title: "Shop Approvals",
     href: "/admin/shops",
     icon: <Store className="mr-2 h-4 w-4" />,
+  },
+  {
+    title: "User Management",
+    href: "/admin/users",
+    icon: <Users className="mr-2 h-4 w-4" />,
   },
 ];
 

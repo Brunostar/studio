@@ -52,3 +52,11 @@ export interface Order {
 }
 
 export type Category = string;
+
+export interface UserProfile {
+  id: string;
+  uid: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'vendor' | 'customer';
+}
