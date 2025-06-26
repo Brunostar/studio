@@ -43,7 +43,7 @@ export function CartView() {
     if (cartItems.length === 0 || !shop?.whatsappNumber) return;
 
     const itemsText = cartItems
-      .map(item => `${item.product.name} (Qty: ${item.quantity}) - $${(item.product.price * item.quantity).toFixed(2)}`)
+      .map(item => `${item.product.title} (Qty: ${item.quantity}) - $${(item.product.price * item.quantity).toFixed(2)}`)
       .join(',\n');
     
     const total = getCartTotal().toFixed(2);

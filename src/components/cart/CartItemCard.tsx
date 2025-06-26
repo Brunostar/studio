@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -24,7 +23,7 @@ export function CartItemCard({ item }: CartItemCardProps) {
       <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border">
         <Image
           src={item.product.images[0] || 'https://placehold.co/600x600.png'}
-          alt={item.product.title}
+          alt={item.product.title || 'Product image'}
           fill
           sizes="96px"
           className="object-cover"
