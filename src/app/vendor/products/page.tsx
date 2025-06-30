@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -80,12 +79,12 @@ export default function VendorProductsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline text-primary">Your Products</h1>
           <p className="text-muted-foreground">A list of all products in your shop.</p>
         </div>
-        <Button asChild>
+        <Button asChild className="w-full sm:w-auto">
           <Link href="/vendor/add-product">
             <PlusCircle className="mr-2 h-4 w-4" />
             Add New Product
@@ -108,52 +107,93 @@ export default function VendorProductsPage() {
           </div>
         </div>
       ) : (
-        <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[80px]">Image</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Stock</TableHead>
-                  <TableHead className="w-[100px] text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {products.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell>
-                      <Image
-                        src={product.images[0] || 'https://placehold.co/100x100.png'}
-                        alt={product.title}
-                        width={50}
-                        height={50}
-                        className="rounded-md object-cover"
-                        data-ai-hint={product.dataAiHint || "product image"}
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium">{product.title}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{product.category}</Badge>
-                    </TableCell>
-                    <TableCell>${product.price.toFixed(2)}</TableCell>
-                    <TableCell>{product.stock}</TableCell>
-                    <TableCell className="text-right">
-                       <Button asChild variant="outline" size="icon">
-                        <Link href={`/vendor/edit-product/${product.id}`}>
-                          <Pencil className="h-4 w-4" />
-                          <span className="sr-only">Edit {product.title}</span>
-                        </Link>
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <>
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-4">
+            {products.map((product) => (
+              <Card key={product.id} className="overflow-hidden">
+                <div className="flex gap-4">
+                    <div className="relative w-24 h-auto flex-shrink-0 bg-muted">
+                        <Image
+                            src={product.images[0] || 'https://placehold.co/100x100.png'}
+                            alt={product.title}
+                            width={100}
+                            height={100}
+                            className="object-cover h-full w-full"
+                            data-ai-hint={product.dataAiHint || "product image"}
+                        />
+                    </div>
+                    <div className="p-4 flex-grow flex flex-col justify-center">
+                        <div>
+                            <Badge variant="outline" className="mb-1">{product.category}</Badge>
+                            <h3 className="font-semibold leading-tight">{product.title}</h3>
+                            <p className="text-sm text-primary font-bold">${product.price.toFixed(2)}</p>
+                            <p className="text-xs text-muted-foreground">Stock: {product.stock}</p>
+                        </div>
+                    </div>
+                     <div className="p-4 flex items-center">
+                        <Button asChild variant="outline" size="icon">
+                            <Link href={`/vendor/edit-product/${product.id}`}>
+                            <Pencil className="h-4 w-4" />
+                            <span className="sr-only">Edit {product.title}</span>
+                            </Link>
+                        </Button>
+                    </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block">
+            <Card>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[80px]">Image</TableHead>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead>Stock</TableHead>
+                      <TableHead className="w-[100px] text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {products.map((product) => (
+                      <TableRow key={product.id}>
+                        <TableCell>
+                          <Image
+                            src={product.images[0] || 'https://placehold.co/100x100.png'}
+                            alt={product.title}
+                            width={50}
+                            height={50}
+                            className="rounded-md object-cover"
+                            data-ai-hint={product.dataAiHint || "product image"}
+                          />
+                        </TableCell>
+                        <TableCell className="font-medium">{product.title}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{product.category}</Badge>
+                        </TableCell>
+                        <TableCell>${product.price.toFixed(2)}</TableCell>
+                        <TableCell>{product.stock}</TableCell>
+                        <TableCell className="text-right">
+                          <Button asChild variant="outline" size="icon">
+                            <Link href={`/vendor/edit-product/${product.id}`}>
+                              <Pencil className="h-4 w-4" />
+                              <span className="sr-only">Edit {product.title}</span>
+                            </Link>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
+        </>
       )}
     </div>
   );

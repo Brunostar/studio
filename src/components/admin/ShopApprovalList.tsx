@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -9,7 +8,7 @@ import { approveShop } from '@/services/shopService';
 import { setUserRole } from '@/services/userService';
 import type { Shop } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from 'lucide-react';
@@ -74,48 +73,85 @@ export function ShopApprovalList({ initialShops }: ShopApprovalListProps) {
   }
 
   return (
-    <Card>
-      <CardContent className="p-0">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Shop Name</TableHead>
-              <TableHead>Vendor ID</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+    <>
+        {/* Mobile Card View */}
+        <div className="md:hidden space-y-4">
             {shops.map((shop) => (
-              <TableRow key={shop.id}>
-                <TableCell className="font-medium">
-                    <Link href={`/shops/${shop.id}`} className="hover:underline" target="_blank" rel="noopener noreferrer">
-                        {shop.name}
-                    </Link>
-                </TableCell>
-                <TableCell className="font-mono text-xs">{shop.vendorId}</TableCell>
-                <TableCell>
-                  <Badge variant={shop.approved ? "secondary" : "destructive"}>
-                    {shop.approved ? "Approved" : "Pending Approval"}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  {!shop.approved && (
-                    <Button
-                      size="sm"
-                      onClick={() => handleApprove(shop)}
-                      disabled={loadingStates[shop.id]}
-                    >
-                      {loadingStates[shop.id] && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Approve
-                    </Button>
-                  )}
-                </TableCell>
-              </TableRow>
+                <Card key={shop.id}>
+                    <CardHeader>
+                        <div className="flex justify-between items-start gap-4">
+                             <Link href={`/shops/${shop.id}`} className="hover:underline" target="_blank" rel="noopener noreferrer">
+                                <CardTitle className="text-lg">{shop.name}</CardTitle>
+                             </Link>
+                             <Badge variant={shop.approved ? "secondary" : "destructive"} className="flex-shrink-0">
+                                {shop.approved ? "Approved" : "Pending"}
+                             </Badge>
+                        </div>
+                        <CardDescription className="font-mono text-xs !mt-2">Vendor ID: {shop.vendorId}</CardDescription>
+                    </CardHeader>
+                    {!shop.approved && (
+                        <CardContent>
+                             <Button
+                                size="sm"
+                                className="w-full"
+                                onClick={() => handleApprove(shop)}
+                                disabled={loadingStates[shop.id]}
+                                >
+                                {loadingStates[shop.id] && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Approve Shop
+                            </Button>
+                        </CardContent>
+                    )}
+                </Card>
             ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block">
+            <Card>
+            <CardContent className="p-0">
+                <Table>
+                <TableHeader>
+                    <TableRow>
+                    <TableHead>Shop Name</TableHead>
+                    <TableHead>Vendor ID</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {shops.map((shop) => (
+                    <TableRow key={shop.id}>
+                        <TableCell className="font-medium">
+                            <Link href={`/shops/${shop.id}`} className="hover:underline" target="_blank" rel="noopener noreferrer">
+                                {shop.name}
+                            </Link>
+                        </TableCell>
+                        <TableCell className="font-mono text-xs">{shop.vendorId}</TableCell>
+                        <TableCell>
+                        <Badge variant={shop.approved ? "secondary" : "destructive"}>
+                            {shop.approved ? "Approved" : "Pending Approval"}
+                        </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                        {!shop.approved && (
+                            <Button
+                            size="sm"
+                            onClick={() => handleApprove(shop)}
+                            disabled={loadingStates[shop.id]}
+                            >
+                            {loadingStates[shop.id] && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Approve
+                            </Button>
+                        )}
+                        </TableCell>
+                    </TableRow>
+                    ))}
+                </TableBody>
+                </Table>
+            </CardContent>
+            </Card>
+        </div>
+    </>
   );
 }

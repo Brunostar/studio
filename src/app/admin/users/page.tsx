@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -8,7 +7,7 @@ import type { UserProfile } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge, type BadgeProps } from "@/components/ui/badge";
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 function getRoleBadgeVariant(role: string): BadgeProps['variant'] {
   switch (role) {
@@ -63,32 +62,55 @@ export default function AdminUsersPage() {
       ) : users.length === 0 ? (
         <p className="text-center text-muted-foreground py-8">No users found.</p>
       ) : (
-        <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>User ID</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+        <>
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-4">
                 {users.map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell className="font-medium">{u.name}</TableCell>
-                    <TableCell>{u.email}</TableCell>
-                    <TableCell>
-                      <Badge variant={getRoleBadgeVariant(u.role)}>{u.role}</Badge>
-                    </TableCell>
-                    <TableCell className="font-mono text-xs">{u.uid}</TableCell>
-                  </TableRow>
+                    <Card key={u.id}>
+                        <CardHeader>
+                            <div className="flex justify-between items-start">
+                                <CardTitle className="text-lg">{u.name}</CardTitle>
+                                <Badge variant={getRoleBadgeVariant(u.role)}>{u.role}</Badge>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="space-y-1 text-sm text-muted-foreground">
+                            <p>{u.email}</p>
+                            <p className="font-mono text-xs pt-2">ID: {u.uid}</p>
+                        </CardContent>
+                    </Card>
                 ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block">
+                <Card>
+                <CardContent className="p-0">
+                    <Table>
+                    <TableHeader>
+                        <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>User ID</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {users.map((u) => (
+                        <TableRow key={u.id}>
+                            <TableCell className="font-medium">{u.name}</TableCell>
+                            <TableCell>{u.email}</TableCell>
+                            <TableCell>
+                            <Badge variant={getRoleBadgeVariant(u.role)}>{u.role}</Badge>
+                            </TableCell>
+                            <TableCell className="font-mono text-xs">{u.uid}</TableCell>
+                        </TableRow>
+                        ))}
+                    </TableBody>
+                    </Table>
+                </CardContent>
+                </Card>
+            </div>
+        </>
       )}
     </div>
   );

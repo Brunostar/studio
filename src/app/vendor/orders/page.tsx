@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect } from 'react';
@@ -9,7 +8,7 @@ import type { Order } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Lock } from 'lucide-react';
 
 
@@ -41,10 +40,8 @@ export default function VendorOrdersPage() {
               <Lock className="h-5 w-5" />
               Access Denied
             </CardTitle>
+            <CardDescription>You must be a vendor to access this page. You can create a shop to become a vendor.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <p>You must be a vendor to access this page. You can create a shop to become a vendor.</p>
-          </CardContent>
         </Card>
       </div>
     );
@@ -61,44 +58,80 @@ export default function VendorOrdersPage() {
       {vendorOrders.length === 0 ? (
         <p className="text-center text-muted-foreground py-8">You have no orders or inquiries yet.</p>
       ) : (
-        <div className="rounded-lg border shadow-sm overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {vendorOrders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium">{order.id.toUpperCase()}</TableCell>
-                  <TableCell>{order.customerName || 'N/A'}</TableCell>
-                  <TableCell>{new Date(order.orderDate).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <ul className="list-disc list-inside">
-                      {order.items.map(item => (
-                        <li key={item.productId} className="text-xs">
-                          {item.productName} (x{item.quantity})
-                        </li>
-                      ))}
-                    </ul>
-                  </TableCell>
-                  <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
-                  <TableCell>
-                    <Badge variant={order.status === 'New Inquiry' ? 'default' : order.status === 'Delivered' ? 'secondary': 'outline'}>
-                      {order.status}
-                    </Badge>
-                  </TableCell>
+        <>
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-4">
+            {vendorOrders.map((order) => (
+                <Card key={order.id}>
+                    <CardHeader>
+                        <div className="flex justify-between items-start">
+                             <div>
+                                <CardTitle className="text-lg">Order #{order.id.toUpperCase()}</CardTitle>
+                                <CardDescription>{new Date(order.orderDate).toLocaleDateString()}</CardDescription>
+                             </div>
+                             <Badge variant={order.status === 'New Inquiry' ? 'default' : order.status === 'Delivered' ? 'secondary': 'outline'}>
+                                {order.status}
+                             </Badge>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-sm">
+                            <p className="font-medium">{order.customerName}</p>
+                            <ul className="list-disc list-inside text-muted-foreground mt-2">
+                                {order.items.map(item => (
+                                    <li key={item.productId} className="text-xs">
+                                    {item.productName} (x{item.quantity})
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </CardContent>
+                    <CardFooter>
+                         <p className="font-semibold text-primary w-full text-right">Total: ${order.totalAmount.toFixed(2)}</p>
+                    </CardFooter>
+                </Card>
+            ))}
+          </div>
+          {/* Desktop Table View */}
+          <div className="hidden md:block rounded-lg border shadow-sm overflow-hidden">
+            <Table>
+                <TableHeader>
+                <TableRow>
+                    <TableHead>Order ID</TableHead>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Items</TableHead>
+                    <TableHead>Total</TableHead>
+                    <TableHead>Status</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+                </TableHeader>
+                <TableBody>
+                {vendorOrders.map((order) => (
+                    <TableRow key={order.id}>
+                    <TableCell className="font-medium">{order.id.toUpperCase()}</TableCell>
+                    <TableCell>{order.customerName || 'N/A'}</TableCell>
+                    <TableCell>{new Date(order.orderDate).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                        <ul className="list-disc list-inside">
+                        {order.items.map(item => (
+                            <li key={item.productId} className="text-xs">
+                            {item.productName} (x{item.quantity})
+                            </li>
+                        ))}
+                        </ul>
+                    </TableCell>
+                    <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
+                    <TableCell>
+                        <Badge variant={order.status === 'New Inquiry' ? 'default' : order.status === 'Delivered' ? 'secondary': 'outline'}>
+                        {order.status}
+                        </Badge>
+                    </TableCell>
+                    </TableRow>
+                ))}
+                </TableBody>
+            </Table>
+          </div>
+        </>
       )}
     </div>
   );
