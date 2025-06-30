@@ -1,7 +1,7 @@
 
 import type { Category, Order } from '@/types';
 
-export const CATEGORIES: Category[] = ['All', 'Phones', 'TVs', 'Speakers', 'Laptops', 'Accessories'];
+export const CATEGORIES: Category[] = ['All', 'Electronics', 'Automotive', 'Fashion', 'Toys', 'Home Goods', 'Books'];
 
 // Note: Product data is now fetched from the API. This mock data is no longer used.
 

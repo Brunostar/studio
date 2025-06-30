@@ -13,9 +13,15 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<Category>(CATEGORIES[0]); // Default to 'All'
+  
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
+  const categoryQuery = searchParams.get('category');
+  
+  const [selectedCategory, setSelectedCategory] = useState<Category>(() => {
+    const initialCategory = categoryQuery || 'All';
+    return CATEGORIES.includes(initialCategory) ? initialCategory : 'All';
+  });
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -26,6 +32,17 @@ export default function ProductsPage() {
     };
     fetchProducts();
   }, []);
+  
+  // This effect synchronizes the component state with the URL query parameter.
+  useEffect(() => {
+    const categoryFromUrl = categoryQuery || 'All';
+     if (CATEGORIES.includes(categoryFromUrl)) {
+      setSelectedCategory(categoryFromUrl);
+    } else {
+      setSelectedCategory('All');
+    }
+  }, [categoryQuery]);
+
 
   const filteredProducts = useMemo(() => {
     let tempProducts = products;
@@ -43,16 +60,23 @@ export default function ProductsPage() {
 
     return tempProducts;
   }, [selectedCategory, products, searchQuery]);
+  
+  const getPageTitle = () => {
+    if (searchQuery) {
+      return `Search Results for "${searchQuery}"`;
+    }
+    if (selectedCategory && selectedCategory !== 'All') {
+      return `${selectedCategory} Products`;
+    }
+    return "Our Products";
+  };
+
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {searchQuery ? (
-        <h1 className="text-3xl font-bold mb-8 text-center font-headline text-primary">
-          Search Results for "{searchQuery}"
-        </h1>
-      ) : (
-        <h1 className="text-3xl font-bold mb-8 text-center font-headline text-primary">Our Products</h1>
-      )}
+      <h1 className="text-3xl font-bold mb-8 text-center font-headline text-primary">
+        {getPageTitle()}
+      </h1>
       <CategoryTabs selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

@@ -4,8 +4,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/context/AuthContext';
 
 export const metadata: Metadata = {
-  title: 'ElectroStore Connect',
-  description: 'Multi-Vendor Electronics E-Commerce Platform',
+  title: 'Cameroon Market',
+  description: 'Your one-stop marketplace for everything in Cameroon.',
 };
 
 export default function RootLayout({
