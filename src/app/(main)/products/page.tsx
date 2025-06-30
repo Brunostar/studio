@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ProductList } from '@/components/products/ProductList';
 import { CategoryTabs } from '@/components/products/CategoryTabs';
@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-export default function ProductsPage() {
+function ProductsPageContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -120,20 +120,45 @@ export default function ProductsPage() {
       )}
 
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => (
-             <div key={i} className="flex flex-col space-y-3">
-              <Skeleton className="h-[250px] w-full rounded-xl" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-[200px]" />
-                <Skeleton className="h-4 w-[150px]" />
-              </div>
-            </div>
-          ))}
-        </div>
+        <ProductGridSkeleton />
       ) : (
         <ProductList products={filteredProducts} />
       )}
     </div>
   );
+}
+
+function ProductGridSkeleton() {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {[...Array(8)].map((_, i) => (
+          <div key={i} className="flex flex-col space-y-3">
+          <Skeleton className="h-[250px] w-full rounded-xl" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[200px]" />
+            <Skeleton className="h-4 w-[150px]" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function PageSkeleton() {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <Skeleton className="h-9 w-1/2 max-w-sm mx-auto mb-8" />
+      <Skeleton className="h-10 w-full max-w-lg mx-auto mb-8" />
+      <ProductGridSkeleton />
+    </div>
+  );
+}
+
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <ProductsPageContent />
+    </Suspense>
+  )
 }
