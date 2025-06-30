@@ -2,8 +2,8 @@
 import type { Order } from '@/types';
 
 export const MARKET_CATEGORIES: Record<string, string[]> = {
-  'Electronics': ['All', 'Phones', 'TVs', 'Laptops', 'Speakers', 'Cameras'],
-  'Automotive': ['All', 'Parts', 'Accessories', 'Tires', 'Tools'],
+  'Electronics': ['All', 'Phones', 'TVs', 'Laptops', 'Speakers', 'Cameras', 'Accessories'],
+  'Automotive': ['All', 'Cars', 'Bikes', 'Parts', 'Accessories', 'Tires', 'Tools'],
   'Fashion': ['All', 'Apparel', 'Shoes', 'Watches', 'Bags'],
   'Toys': ['All', 'Action Figures', 'Dolls', 'Board Games', 'Puzzles'],
   'Home Goods': ['All', 'Furniture', 'Decor', 'Kitchenware', 'Lighting'],

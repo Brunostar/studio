@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { notFound } from 'next/navigation';
 import { getAllShops, getShopById } from '@/services/shopService';
 import { getProductsByShopId } from '@/services/productService';
-import { EditShopButton } from '@/components/shops/EditShopButton';
+import { ShopOwnerActions } from '@/components/shops/EditShopButton';
 import { MapPin } from 'lucide-react';
 
 interface ShopPageParams {
@@ -73,7 +73,7 @@ export default async function ShopPage({ params }: ShopPageParams) {
                  </a>
             )}
           </div>
-          <EditShopButton shop={shop} />
+          <ShopOwnerActions shop={shop} />
         </CardHeader>
       </Card>
 
