@@ -14,7 +14,9 @@ export default async function HomePage() {
   // The backend API sorts products by creation date descending.
   const popularProducts: Product[] = allProducts.slice(0, 4);
 
-  const featuredShops: Shop[] = allShops.filter(s => s.isFeatured).slice(0, 3);
+  // The backend doesn't have a reliable `isFeatured` flag.
+  // Instead, we'll feature the first 3 *approved* shops.
+  const featuredShops: Shop[] = allShops.filter(s => s.approved).slice(0, 3);
 
   return (
     <div className="container mx-auto px-4 py-8">
