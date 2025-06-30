@@ -122,11 +122,13 @@ function ProductsPageContent() {
       </h1>
       
       {mainCategory && subCategories.length > 1 && (
-        <CategoryTabs 
-          categories={subCategories} 
-          selectedCategory={selectedSubCategory} 
-          onSelectCategory={setSelectedSubCategory} 
-        />
+        <div className="mb-8">
+          <CategoryTabs 
+            categories={subCategories} 
+            selectedCategory={selectedSubCategory} 
+            onSelectCategory={setSelectedSubCategory} 
+          />
+        </div>
       )}
 
       {isLoading ? (
