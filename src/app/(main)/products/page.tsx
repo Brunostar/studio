@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
@@ -25,6 +26,15 @@ function ProductsPageContent() {
   
   const [selectedSubCategory, setSelectedSubCategory] = useState<Category>('All');
 
+  const filterBySearchQuery = (product: Product, query: string) => {
+    const lowerCaseQuery = query.toLowerCase();
+    return (
+        product.title.toLowerCase().includes(lowerCaseQuery) ||
+        product.description.toLowerCase().includes(lowerCaseQuery) ||
+        (product.manufacturer && product.manufacturer.toLowerCase().includes(lowerCaseQuery))
+    );
+  };
+
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true);
@@ -44,10 +54,7 @@ function ProductsPageContent() {
     if (!mainCategory) {
       // If no main category, show products based on search
        const prods = searchQuery 
-        ? products.filter(product => 
-            product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            product.description.toLowerCase().includes(searchQuery.toLowerCase())
-          )
+        ? products.filter(product => filterBySearchQuery(product, searchQuery))
         : []; // Don't show all products, prompt to select market
       return { productsInMainCategory: prods, subCategories: [] };
     }
@@ -69,10 +76,7 @@ function ProductsPageContent() {
     // Search query is now applied at the main category level above
     // so we don't need to re-apply it here unless mainCategory is not present
     if (!mainCategory && searchQuery) {
-        tempProducts = tempProducts.filter(product => 
-            product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            product.description.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        tempProducts = tempProducts.filter(product => filterBySearchQuery(product, searchQuery));
     }
 
     return tempProducts;

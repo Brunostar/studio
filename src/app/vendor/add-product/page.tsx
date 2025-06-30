@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -30,6 +31,7 @@ const productFormSchema = z.object({
   price: z.coerce.number().min(0.01, { message: 'Price must be a positive number.' }),
   stock: z.coerce.number().int().min(0, { message: 'Stock cannot be negative.' }),
   subCategory: z.string().min(1, { message: 'Please select a sub-category.' }),
+  manufacturer: z.string().optional(),
   images: z
     .any()
     .refine((files) => files?.length >= 1, "At least one image is required.")
@@ -52,6 +54,7 @@ export default function AddProductPage() {
       price: 0,
       stock: 0,
       subCategory: '',
+      manufacturer: '',
       images: undefined,
     },
   });
@@ -98,6 +101,7 @@ export default function AddProductPage() {
         stock: data.stock,
         category: shop.category, // Inherit from shop
         subCategory: data.subCategory,
+        manufacturer: data.manufacturer,
         images: imageUrls,
       }, token);
 
@@ -157,6 +161,14 @@ export default function AddProductPage() {
                 <FormItem>
                   <FormLabel>Product Title</FormLabel>
                   <FormControl><Input placeholder="e.g., Wireless Noise-Cancelling Headphones" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+              <FormField control={form.control} name="manufacturer" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Manufacturer (Brand)</FormLabel>
+                  <FormControl><Input placeholder="e.g., Samsung, Apple, Itel" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />

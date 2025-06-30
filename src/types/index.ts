@@ -1,4 +1,5 @@
 
+
 export interface Product {
   id: string;
   title: string;
@@ -9,6 +10,7 @@ export interface Product {
   shopId: string;
   category: string;
   subCategory: string;
+  manufacturer?: string;
   vendorId: string;
   createdAt: string;
   isPopular?: boolean;

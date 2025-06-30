@@ -1,4 +1,5 @@
 
+
 import type { Product } from '@/types';
 
 const API_BASE_URL = 'https://e-electro-backend.onrender.com/api';

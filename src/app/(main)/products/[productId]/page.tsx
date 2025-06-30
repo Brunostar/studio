@@ -48,6 +48,9 @@ export default async function ProductPage({ params }: ProductPageParams) {
                   <div>
                     <Badge variant="outline" className="mb-2">{product.category}</Badge>
                     <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">{product.title}</h1>
+                    {product.manufacturer && (
+                        <p className="text-md text-muted-foreground mt-1">by {product.manufacturer}</p>
+                    )}
                   </div>
                   {shop && (
                     <Link href={`/shops/${shop.id}`} className="text-sm font-medium text-muted-foreground hover:underline shrink-0">

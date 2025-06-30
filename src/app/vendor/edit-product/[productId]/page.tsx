@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -33,6 +34,7 @@ const editProductFormSchema = z.object({
   price: z.coerce.number().min(0.01, { message: 'Price must be a positive number.' }),
   stock: z.coerce.number().int().min(0, { message: 'Stock cannot be negative.' }),
   subCategory: z.string().min(1, { message: "Please select a sub-category." }),
+  manufacturer: z.string().optional(),
   images: z
     .any()
     .optional()
@@ -60,6 +62,7 @@ export default function EditProductPage() {
       price: 0,
       stock: 0,
       subCategory: '',
+      manufacturer: '',
       images: undefined,
     },
   });
@@ -77,6 +80,7 @@ export default function EditProductPage() {
             price: fetchedProduct.price,
             stock: fetchedProduct.stock,
             subCategory: fetchedProduct.subCategory,
+            manufacturer: fetchedProduct.manufacturer || '',
           });
         } else {
           toast({ title: "Product not found", description: "Could not find the product you're trying to edit.", variant: "destructive" });
@@ -125,6 +129,7 @@ export default function EditProductPage() {
         price: data.price,
         stock: data.stock,
         subCategory: data.subCategory,
+        manufacturer: data.manufacturer,
         // Main category is not editable at the product level
         ...(imageUrls && { images: imageUrls }),
       };
@@ -201,6 +206,14 @@ export default function EditProductPage() {
                   <FormMessage />
                 </FormItem>
               )} />
+              
+              <FormField control={form.control} name="manufacturer" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Manufacturer (Brand)</FormLabel>
+                  <FormControl><Input placeholder="e.g., Samsung, Apple, Itel" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
 
               <FormField control={form.control} name="description" render={({ field }) => (
                 <FormItem>
@@ -239,7 +252,7 @@ export default function EditProductPage() {
                   <FormLabel>Sub-Category</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value} disabled={subCategoryOptions.length === 0}>
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Select a sub-category" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder="Select a sub-category" /></SelectValue>
                       </FormControl>
                       <SelectContent>
                         {subCategoryOptions.filter(c => c !== 'All').map(sub => (
