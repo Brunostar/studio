@@ -2,11 +2,36 @@
 'use client';
 
 import Link from 'next/link';
-import { Package2 } from 'lucide-react';
+import { Package2, MapPin } from 'lucide-react';
 import { NavLink } from './NavLink';
 import { CartIcon } from '@/components/cart/CartIcon';
 import SearchWithSuggestions from '@/components/search/SearchWithSuggestions';
 import { AuthStatus } from '../auth/AuthStatus';
+import { useMarket } from '@/context/MarketContext';
+import { Skeleton } from '../ui/skeleton';
+import { Button } from '../ui/button';
+
+function CurrentMarketDisplay() {
+  const { selectedMarket, isMarketLoading } = useMarket();
+
+  if (isMarketLoading) {
+    return <Skeleton className="h-9 w-40 hidden md:flex" />;
+  }
+
+  if (!selectedMarket) {
+    return null; // Don't show anything if no market is selected
+  }
+
+  return (
+    <Button variant="ghost" size="sm" asChild className="hidden md:flex">
+      <Link href="/" className="text-muted-foreground">
+        <MapPin className="mr-2 h-4 w-4" />
+        Market: <span className="text-foreground font-semibold ml-1">{selectedMarket}</span>
+      </Link>
+    </Button>
+  );
+}
+
 
 export function AppHeader() {
   return (
@@ -32,6 +57,7 @@ export function AppHeader() {
 
         {/* Right Part: Search, Cart, Auth */}
         <div className="flex items-center space-x-1 sm:space-x-2">
+          <CurrentMarketDisplay />
           <SearchWithSuggestions />
           <div className="hidden md:flex">
             <CartIcon />

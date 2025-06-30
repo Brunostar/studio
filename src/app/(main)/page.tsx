@@ -1,8 +1,11 @@
 
+'use client';
+
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Laptop, Car, Shirt, ToyBrick, Home as HomeIcon, BookOpen } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useMarket } from '@/context/MarketContext';
 
 const marketCategories: { name: string; description: string; slug: string; icon: ReactNode; }[] = [
   { name: 'Electronics', slug: 'Electronics', description: 'Gadgets, devices, and more.', icon: <Laptop className="w-10 h-10" /> },
@@ -14,7 +17,9 @@ const marketCategories: { name: string; description: string; slug: string; icon:
 ];
 
 
-export default async function HomePage() {
+export default function HomePage() {
+  const { setSelectedMarket } = useMarket();
+
   return (
     <div className="container mx-auto px-4 py-8">
       <section className="text-center mb-12">
@@ -27,7 +32,12 @@ export default async function HomePage() {
       <section>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
           {marketCategories.map((category) => (
-            <Link href={`/products?category=${encodeURIComponent(category.slug)}`} key={category.slug} className="group">
+            <Link 
+              href="/products" 
+              onClick={() => setSelectedMarket(category.slug)} 
+              key={category.slug} 
+              className="group"
+            >
               <Card className="h-full hover:shadow-lg hover:-translate-y-1 transition-transform duration-300">
                 <CardHeader className="flex flex-col items-center text-center gap-4 p-6">
                   <div className="p-4 bg-primary/10 rounded-full text-primary">

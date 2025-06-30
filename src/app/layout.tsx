@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/context/AuthContext';
+import { MarketProvider } from '@/context/MarketContext';
 
 export const metadata: Metadata = {
   title: 'Cameroon Market',
@@ -22,7 +23,9 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col" suppressHydrationWarning>
         <AuthProvider>
-          {children}
+          <MarketProvider>
+            {children}
+          </MarketProvider>
         </AuthProvider>
         <Toaster />
       </body>

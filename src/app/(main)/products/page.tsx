@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { useMarket } from '@/context/MarketContext';
 
 function ProductsPageContent() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -19,7 +20,8 @@ function ProductsPageContent() {
   
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
-  const mainCategory = searchParams.get('category');
+  
+  const { selectedMarket: mainCategory, isMarketLoading } = useMarket();
   
   const [selectedSubCategory, setSelectedSubCategory] = useState<Category>('All');
 
@@ -40,13 +42,13 @@ function ProductsPageContent() {
 
   const { productsInMainCategory, subCategories } = useMemo(() => {
     if (!mainCategory) {
-      // If no main category, show all products (or based on search)
+      // If no main category, show products based on search
        const prods = searchQuery 
         ? products.filter(product => 
             product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             product.description.toLowerCase().includes(searchQuery.toLowerCase())
           )
-        : products;
+        : []; // Don't show all products, prompt to select market
       return { productsInMainCategory: prods, subCategories: [] };
     }
 
@@ -85,6 +87,10 @@ function ProductsPageContent() {
     }
     return "Our Products";
   };
+  
+  if (isMarketLoading) {
+    return <PageSkeleton />;
+  }
   
   if (!mainCategory && !searchQuery) {
       return (
