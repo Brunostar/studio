@@ -11,6 +11,7 @@ import type { Product, Category } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
