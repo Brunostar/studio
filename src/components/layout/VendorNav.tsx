@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
-import { Home, LayoutDashboard, ListOrdered, Package, Settings } from 'lucide-react';
+import { Home, LayoutDashboard, ListOrdered, Package, Settings, Store } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const sidebarNavItems = [
   {
@@ -32,25 +33,43 @@ const sidebarNavItems = [
 
 export function VendorNav() {
   const pathname = usePathname();
+  const { shop } = useAuth();
 
   return (
-    <nav className="flex flex-col space-y-1">
-      {sidebarNavItems.map((item) => (
+    <nav className="flex flex-col space-y-2">
+      {shop && (
         <Link
-          key={item.href}
-          href={item.href}
+          href={`/shops/${shop.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
           className={cn(
-            buttonVariants({ variant: "ghost" }),
-            pathname === item.href
-              ? "bg-muted hover:bg-muted font-semibold"
-              : "hover:bg-transparent hover:underline",
-            "justify-start"
+            buttonVariants({ variant: "outline" }),
+            "justify-start font-semibold mb-2"
           )}
         >
-          {item.icon}
-          {item.title}
+          <Store className="mr-2 h-4 w-4" />
+          View Public Shop
         </Link>
-      ))}
+      )}
+      
+      <div className="flex flex-col space-y-1">
+        {sidebarNavItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn(
+              buttonVariants({ variant: "ghost" }),
+              pathname === item.href
+                ? "bg-muted hover:bg-muted font-semibold"
+                : "hover:bg-transparent hover:underline",
+              "justify-start"
+            )}
+          >
+            {item.icon}
+            {item.title}
+          </Link>
+        ))}
+      </div>
        <Link
           href="/"
           className={cn(
