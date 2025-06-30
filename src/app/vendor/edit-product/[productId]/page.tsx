@@ -13,7 +13,7 @@ import { getProductById, updateProduct } from '@/services/productService';
 import type { Product } from '@/types';
 import { storage } from '@/lib/firebase';
 import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { CATEGORIES } from '@/lib/mock-data';
+import { MARKET_CATEGORIES } from '@/lib/mock-data';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +23,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Loader2, ArrowLeft } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 import Image from 'next/image';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -31,9 +32,7 @@ const editProductFormSchema = z.object({
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
   price: z.coerce.number().min(0.01, { message: 'Price must be a positive number.' }),
   stock: z.coerce.number().int().min(0, { message: 'Stock cannot be negative.' }),
-  category: z.string().refine(val => CATEGORIES.map(c => c.toLowerCase()).includes(val.toLowerCase()), {
-    message: "Please select a valid category."
-  }),
+  subCategory: z.string().min(1, { message: "Please select a sub-category." }),
   images: z
     .any()
     .optional()
@@ -60,7 +59,7 @@ export default function EditProductPage() {
       description: '',
       price: 0,
       stock: 0,
-      category: '',
+      subCategory: '',
       images: undefined,
     },
   });
@@ -77,7 +76,7 @@ export default function EditProductPage() {
             description: fetchedProduct.description,
             price: fetchedProduct.price,
             stock: fetchedProduct.stock,
-            category: fetchedProduct.category,
+            subCategory: fetchedProduct.subCategory,
           });
         } else {
           toast({ title: "Product not found", description: "Could not find the product you're trying to edit.", variant: "destructive" });
@@ -125,7 +124,8 @@ export default function EditProductPage() {
         description: data.description,
         price: data.price,
         stock: data.stock,
-        category: data.category,
+        subCategory: data.subCategory,
+        // Main category is not editable at the product level
         ...(imageUrls && { images: imageUrls }),
       };
 
@@ -148,6 +148,9 @@ export default function EditProductPage() {
       setIsSubmitting(false);
     }
   }
+  
+  const subCategoryOptions = product?.category ? MARKET_CATEGORIES[product.category] || [] : [];
+
 
   if (isFetchingProduct || authLoading) {
     return (
@@ -225,22 +228,29 @@ export default function EditProductPage() {
                   )} />
               </div>
               
-              <FormField control={form.control} name="category" render={({ field }) => (
+              <div className="space-y-2">
+                 <Label>Main Category</Label>
+                 <Input value={product.category || 'N/A'} disabled />
+                 <p className="text-sm text-muted-foreground">The main category cannot be changed.</p>
+              </div>
+
+              <FormField control={form.control} name="subCategory" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel>Sub-Category</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value} disabled={subCategoryOptions.length === 0}>
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder="Select a sub-category" /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {CATEGORIES.filter(c => c !== 'All').map(category => (
-                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        {subCategoryOptions.filter(c => c !== 'All').map(sub => (
+                          <SelectItem key={sub} value={sub}>{sub}</SelectItem>
                         ))}
                       </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
               )} />
+
 
                <div className="space-y-2">
                 <FormLabel>Current Images</FormLabel>

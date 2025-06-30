@@ -10,10 +10,9 @@ import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { createProduct } from '@/services/productService';
-import type { Category } from '@/types';
 import { storage } from '@/lib/firebase';
 import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { CATEGORIES } from '@/lib/mock-data';
+import { MARKET_CATEGORIES } from '@/lib/mock-data';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,9 +28,7 @@ const productFormSchema = z.object({
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
   price: z.coerce.number().min(0.01, { message: 'Price must be a positive number.' }),
   stock: z.coerce.number().int().min(0, { message: 'Stock cannot be negative.' }),
-  category: z.string().refine(val => CATEGORIES.map(c => c.toLowerCase()).includes(val.toLowerCase()), {
-    message: "Please select a valid category."
-  }),
+  subCategory: z.string().min(1, { message: 'Please select a sub-category.' }),
   images: z
     .any()
     .refine((files) => files?.length >= 1, "At least one image is required.")
@@ -53,7 +50,7 @@ export default function AddProductPage() {
       description: '',
       price: 0,
       stock: 0,
-      category: '',
+      subCategory: '',
       images: undefined,
     },
   });
@@ -73,8 +70,8 @@ export default function AddProductPage() {
   };
 
   async function onSubmit(data: ProductFormValues) {
-    if (!user) {
-      toast({ title: 'You must be logged in.', variant: 'destructive' });
+    if (!user || !shop?.category) {
+      toast({ title: 'You must be logged in and have a shop category defined.', variant: 'destructive' });
       return;
     }
     
@@ -98,7 +95,8 @@ export default function AddProductPage() {
         description: data.description,
         price: data.price,
         stock: data.stock,
-        category: data.category,
+        category: shop.category, // Inherit from shop
+        subCategory: data.subCategory,
         images: imageUrls,
       }, token);
 
@@ -138,6 +136,7 @@ export default function AddProductPage() {
     );
   }
 
+  const subCategoryOptions = shop?.category ? MARKET_CATEGORIES[shop.category] || [] : [];
 
   return (
     <div className="space-y-6">
@@ -186,17 +185,23 @@ export default function AddProductPage() {
                     </FormItem>
                   )} />
               </div>
+
+               <div className="space-y-2">
+                 <Label>Main Category</Label>
+                 <Input value={shop?.category || 'Loading...'} disabled />
+                 <p className="text-sm text-muted-foreground">The main category is inherited from your shop settings.</p>
+               </div>
               
-              <FormField control={form.control} name="category" render={({ field }) => (
+              <FormField control={form.control} name="subCategory" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel>Sub-Category</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} disabled={subCategoryOptions.length === 0}>
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder="Select a sub-category" /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {CATEGORIES.filter(c => c !== 'All').map(category => (
-                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        {subCategoryOptions.filter(c => c !== 'All').map(sub => (
+                          <SelectItem key={sub} value={sub}>{sub}</SelectItem>
                         ))}
                       </SelectContent>
                   </Select>

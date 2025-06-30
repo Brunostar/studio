@@ -1,7 +1,17 @@
 
-import type { Category, Order } from '@/types';
+import type { Order } from '@/types';
 
-export const CATEGORIES: Category[] = ['All', 'Electronics', 'Automotive', 'Fashion', 'Toys', 'Home Goods', 'Books'];
+export const MARKET_CATEGORIES: Record<string, string[]> = {
+  'Electronics': ['All', 'Phones', 'TVs', 'Laptops', 'Speakers', 'Cameras'],
+  'Automotive': ['All', 'Parts', 'Accessories', 'Tires', 'Tools'],
+  'Fashion': ['All', 'Apparel', 'Shoes', 'Watches', 'Bags'],
+  'Toys': ['All', 'Action Figures', 'Dolls', 'Board Games', 'Puzzles'],
+  'Home Goods': ['All', 'Furniture', 'Decor', 'Kitchenware', 'Lighting'],
+  'Books': ['All', 'Fiction', 'Non-Fiction', 'Textbooks', 'Magazines']
+};
+
+export const CATEGORIES: string[] = Object.keys(MARKET_CATEGORIES);
+
 
 // Note: Product data is now fetched from the API. This mock data is no longer used.
 

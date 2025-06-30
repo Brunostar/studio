@@ -8,6 +8,7 @@ export interface Product {
   stock: number;
   shopId: string;
   category: string;
+  subCategory: string;
   vendorId: string;
   createdAt: string;
   isPopular?: boolean;
@@ -27,6 +28,7 @@ export interface Shop {
   dataAiHintLogo?: string;
   vendorId: string; // The ID of the user who owns the shop
   approved?: boolean; // Is the shop approved by an admin
+  category: string;
 }
 
 export interface CartItem {

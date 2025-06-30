@@ -12,15 +12,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CATEGORIES } from '@/lib/mock-data';
 
 const createShopFormSchema = z.object({
   name: z.string().min(3, { message: 'Shop name must be at least 3 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
   whatsappNumber: z.string().min(10, { message: 'Please enter a valid WhatsApp number including country code.' }).startsWith('+', {message: 'WhatsApp number must start with a country code (e.g., +1...)'}),
+  category: z.string().min(1, { message: "Please select your shop's primary category." }),
 });
 
 type CreateShopFormValues = z.infer<typeof createShopFormSchema>;
@@ -44,6 +47,7 @@ export default function CreateShopPage() {
       name: '',
       description: '',
       whatsappNumber: '',
+      category: '',
     },
   });
 
@@ -66,6 +70,7 @@ export default function CreateShopPage() {
           name: data.name,
           description: data.description,
           whatsappNumber: data.whatsappNumber,
+          category: data.category,
         })
       });
 
@@ -176,6 +181,26 @@ export default function CreateShopPage() {
                 </FormItem>
               )}
             />
+             <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Shop Category</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select your shop's main category" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {CATEGORIES.map(category => (
+                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Submit for Review

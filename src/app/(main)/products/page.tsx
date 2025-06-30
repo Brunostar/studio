@@ -5,10 +5,12 @@ import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ProductList } from '@/components/products/ProductList';
 import { CategoryTabs } from '@/components/products/CategoryTabs';
-import { CATEGORIES } from '@/lib/mock-data';
+import { MARKET_CATEGORIES } from '@/lib/mock-data';
 import { getAllProducts } from '@/services/productService';
 import type { Product, Category } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -16,12 +18,9 @@ export default function ProductsPage() {
   
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
-  const categoryQuery = searchParams.get('category');
+  const mainCategory = searchParams.get('category');
   
-  const [selectedCategory, setSelectedCategory] = useState<Category>(() => {
-    const initialCategory = categoryQuery || 'All';
-    return CATEGORIES.includes(initialCategory) ? initialCategory : 'All';
-  });
+  const [selectedSubCategory, setSelectedSubCategory] = useState<Category>('All');
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -33,25 +32,40 @@ export default function ProductsPage() {
     fetchProducts();
   }, []);
   
-  // This effect synchronizes the component state with the URL query parameter.
+  // Reset sub-category when main category changes
   useEffect(() => {
-    const categoryFromUrl = categoryQuery || 'All';
-     if (CATEGORIES.includes(categoryFromUrl)) {
-      setSelectedCategory(categoryFromUrl);
-    } else {
-      setSelectedCategory('All');
+    setSelectedSubCategory('All');
+  }, [mainCategory]);
+
+  const { productsInMainCategory, subCategories } = useMemo(() => {
+    if (!mainCategory) {
+      // If no main category, show all products (or based on search)
+       const prods = searchQuery 
+        ? products.filter(product => 
+            product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            product.description.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        : products;
+      return { productsInMainCategory: prods, subCategories: [] };
     }
-  }, [categoryQuery]);
+
+    const productsInMainCategory = products.filter(p => p.category === mainCategory);
+    const subCategories = MARKET_CATEGORIES[mainCategory] || ['All'];
+    
+    return { productsInMainCategory, subCategories };
+  }, [mainCategory, products, searchQuery]);
 
 
   const filteredProducts = useMemo(() => {
-    let tempProducts = products;
+    let tempProducts = productsInMainCategory;
     
-    if (selectedCategory !== 'All') {
-      tempProducts = tempProducts.filter(product => product.category === selectedCategory);
+    if (selectedSubCategory !== 'All') {
+      tempProducts = tempProducts.filter(product => product.subCategory === selectedSubCategory);
     }
     
-    if (searchQuery) {
+    // Search query is now applied at the main category level above
+    // so we don't need to re-apply it here unless mainCategory is not present
+    if (!mainCategory && searchQuery) {
         tempProducts = tempProducts.filter(product => 
             product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             product.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -59,17 +73,35 @@ export default function ProductsPage() {
     }
 
     return tempProducts;
-  }, [selectedCategory, products, searchQuery]);
+  }, [selectedSubCategory, productsInMainCategory, searchQuery, mainCategory]);
   
   const getPageTitle = () => {
     if (searchQuery) {
       return `Search Results for "${searchQuery}"`;
     }
-    if (selectedCategory && selectedCategory !== 'All') {
-      return `${selectedCategory} Products`;
+    if (mainCategory) {
+      return `${mainCategory} Market`;
     }
     return "Our Products";
   };
+  
+  if (!mainCategory && !searchQuery) {
+      return (
+        <div className="container mx-auto px-4 py-8">
+             <Card className="text-center">
+                 <CardHeader>
+                     <CardTitle>No Market Selected</CardTitle>
+                 </CardHeader>
+                 <CardContent>
+                    <p>Please select a market from the homepage to start browsing.</p>
+                     <Button asChild className="mt-4">
+                         <Link href="/">Go to Homepage</Link>
+                     </Button>
+                 </CardContent>
+             </Card>
+        </div>
+      )
+  }
 
 
   return (
@@ -77,7 +109,15 @@ export default function ProductsPage() {
       <h1 className="text-3xl font-bold mb-8 text-center font-headline text-primary">
         {getPageTitle()}
       </h1>
-      <CategoryTabs selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
+      
+      {mainCategory && subCategories.length > 1 && (
+        <CategoryTabs 
+          categories={subCategories} 
+          selectedCategory={selectedSubCategory} 
+          onSelectCategory={setSelectedSubCategory} 
+        />
+      )}
+
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (

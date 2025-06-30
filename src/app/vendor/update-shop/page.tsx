@@ -14,20 +14,25 @@ import { getMyShop, updateShop } from '@/services/shopService';
 import type { Shop } from '@/types';
 import { storage } from '@/lib/firebase';
 import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { CATEGORIES } from '@/lib/mock-data';
+
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Upload, Lock } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2, Upload, Lock, Info } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const updateShopFormSchema = z.object({
   name: z.string().min(3, { message: 'Shop name must be at least 3 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
   whatsappNumber: z.string().min(10, 'Please enter a valid WhatsApp number.'),
   location: z.string().min(3, 'Please enter a valid location.').optional(),
+  category: z.string(), // Category is required but not user-editable here
   logoUrl: z.any(), // Can be a string (URL) or a File object
   coverPhotoUrl: z.any(), // Can be a string (URL) or a File object
 });
@@ -52,6 +57,7 @@ export default function UpdateShopPage() {
       description: '',
       whatsappNumber: '',
       location: '',
+      category: '',
       logoUrl: '',
       coverPhotoUrl: '',
     },
@@ -71,6 +77,7 @@ export default function UpdateShopPage() {
               description: shopData.description || '',
               whatsappNumber: shopData.whatsappNumber || '',
               location: shopData.location || '',
+              category: shopData.category || '',
               logoUrl: shopData.logoUrl || '',
               coverPhotoUrl: shopData.coverPhotoUrl || '',
             });
@@ -135,6 +142,7 @@ export default function UpdateShopPage() {
         location: data.location,
         logoUrl: finalLogoUrl,
         coverPhotoUrl: finalCoverPhotoUrl,
+        category: data.category, // Pass the category, though it's not edited
       };
 
       await updateShop(updateData, token);
@@ -240,6 +248,30 @@ export default function UpdateShopPage() {
               <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="e.g., Silicon Valley, CA" {...field} /></FormControl><FormMessage /></FormItem>
             )} />
             
+             <FormField control={form.control} name="category" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Shop Category</FormLabel>
+                   <Alert variant="default" className="mt-2">
+                      <Info className="h-4 w-4" />
+                      <AlertDescription className="text-xs">
+                        Shop category cannot be changed after creation. Contact support for assistance.
+                      </AlertDescription>
+                    </Alert>
+                  <Select onValueChange={field.onChange} value={field.value} disabled>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {CATEGORIES.map(category => (
+                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        ))}
+                      </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+
             <FormField
               control={form.control}
               name="logoUrl"
