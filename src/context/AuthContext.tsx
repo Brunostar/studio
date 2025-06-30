@@ -2,7 +2,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { onAuthStateChanged, User, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { onAuthStateChanged, User, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth, firebaseConfigIsValid } from '@/lib/firebase';
 import { usePathname, useRouter } from 'next/navigation';
 import type { Shop } from '@/types';
@@ -14,6 +14,7 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<any>;
   signup: (name: string, email: string, pass: string) => Promise<any>;
   logout: () => Promise<void>;
+  signInWithGoogle: () => Promise<any>;
   isFirebaseEnabled: boolean;
   isVendor: boolean;
   isAdmin: boolean;
@@ -165,6 +166,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw error;
     }
   };
+
+  const signInWithGoogle = async () => {
+    if (!firebaseConfigIsValid || !auth) {
+      throw new Error("Firebase is not configured. Please check your .env file.");
+    }
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const token = await user.getIdToken();
+
+      const profileResponse = await fetch(`https://e-electro-backend.onrender.com/api/users/${user.uid}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+      });
+
+      if (profileResponse.status === 404) {
+        const registrationResponse = await fetch('https://e-electro-backend.onrender.com/api/users/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            name: user.displayName || user.email,
+            email: user.email,
+            role: 'customer'
+          })
+        });
+
+        if (!registrationResponse.ok) {
+          const errorData = await registrationResponse.json();
+          await firebaseSignOut(auth);
+          throw new Error(errorData.message || 'Backend registration failed after Google Sign-In.');
+        }
+      } else if (!profileResponse.ok) {
+        const errorText = await profileResponse.text();
+        await firebaseSignOut(auth);
+        throw new Error(`Failed to verify user profile on backend: ${errorText}`);
+      }
+
+      return result;
+    } catch (error: any) {
+      console.error("Google Sign-In Error:", error);
+      throw new Error(error.message || 'An unexpected error occurred during Google Sign-In.');
+    }
+  };
   
   const logout = async () => {
     if (!firebaseConfigIsValid || !auth) {
@@ -175,7 +223,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     router.push('/');
   };
 
-  const value = { user, loading, login, signup, logout, isFirebaseEnabled: firebaseConfigIsValid, isVendor, isAdmin, shop, isShopProfileComplete: isShopProfileComplete(shop), refetchUserProfile };
+  const value = { user, loading, login, signup, logout, signInWithGoogle, isFirebaseEnabled: firebaseConfigIsValid, isVendor, isAdmin, shop, isShopProfileComplete: isShopProfileComplete(shop), refetchUserProfile };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
