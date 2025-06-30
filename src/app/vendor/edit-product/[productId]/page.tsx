@@ -270,7 +270,7 @@ export default function EditProductPage() {
                 <div className="flex gap-2 flex-wrap p-2 border rounded-md min-h-24">
                   {product.images.length > 0 ? product.images.map((url, i) => (
                     <div key={i} className="relative w-24 h-24 rounded-md overflow-hidden bg-muted">
-                       <Image src={url} alt={`Current image ${i+1}`} layout="fill" className="object-cover" />
+                       <Image src={url} alt={`Current image ${i+1}`} fill sizes="96px" className="object-cover" />
                     </div>
                   )) : <p className="text-sm text-muted-foreground p-2">No current images.</p>}
                 </div>
