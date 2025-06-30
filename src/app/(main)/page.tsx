@@ -25,7 +25,7 @@ export default async function HomePage() {
       </section>
 
       <section>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
           {marketCategories.map((category) => (
             <Link href={`/products?category=${encodeURIComponent(category.slug)}`} key={category.slug} className="group">
               <Card className="h-full hover:shadow-lg hover:-translate-y-1 transition-transform duration-300">
