@@ -14,6 +14,8 @@ import {
   SheetContent,
   SheetTrigger,
   SheetClose,
+  SheetHeader,
+  SheetTitle,
 } from "@/components/ui/sheet";
 
 export function AppHeader() {
@@ -48,7 +50,10 @@ export function AppHeader() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-                <nav className="flex flex-col gap-6 text-lg font-medium mt-10">
+                <SheetHeader>
+                  <SheetTitle className="sr-only">Menu</SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-6 text-lg font-medium mt-6">
                    <SheetClose asChild>
                       <NavLink href="/">Home</NavLink>
                     </SheetClose>
