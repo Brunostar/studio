@@ -1,14 +1,15 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, Search } from 'lucide-react';
 import { suggestProducts, SuggestProductsInput } from '@/ai/flows/smart-product-suggestion';
-import { useDebounce } from '@/hooks/useDebounce'; // Assuming a debounce hook exists or will be created
 
-// A simple debounce hook implementation if not available elsewhere
-function useDebounceValue<T>(value: T, delay: number): T {
+// A simple debounce hook
+function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
   useEffect(() => {
@@ -30,8 +31,9 @@ export default function SearchWithSuggestions() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const router = useRouter();
 
-  const debouncedSearchTerm = useDebounceValue(searchTerm, 300);
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   const fetchSuggestions = useCallback(async (input: SuggestProductsInput) => {
     if (!input.searchInput.trim()) {
@@ -62,12 +64,17 @@ export default function SearchWithSuggestions() {
     }
   }, [debouncedSearchTerm, fetchSuggestions]);
 
-  const handleSuggestionClick = (suggestion: string) => {
-    setSearchTerm(suggestion); // Fill search bar with suggestion
+  const performSearch = (query: string) => {
+    const trimmedQuery = query.trim();
+    if (trimmedQuery) {
+        router.push(`/products?search=${encodeURIComponent(trimmedQuery)}`);
+    }
     setShowSuggestions(false);
-    // Here you might want to trigger a search based on the suggestion,
-    // e.g., router.push(`/products?search=${suggestion}`);
-    console.log("Selected suggestion:", suggestion);
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchTerm(suggestion);
+    performSearch(suggestion);
   };
   
   const handleBlur = () => {
@@ -77,21 +84,28 @@ export default function SearchWithSuggestions() {
     }, 150);
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    performSearch(searchTerm);
+  };
+
   return (
     <div className="relative w-full max-w-md">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Search for phones, TVs, speakers..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onFocus={() => searchTerm && setShowSuggestions(true)}
-          onBlur={handleBlur}
-          className="pl-10 pr-4 py-2 w-full rounded-md shadow-sm"
-          aria-label="Search products"
-        />
-      </div>
+      <form onSubmit={handleSubmit} role="search">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search for phones, TVs, speakers..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onFocus={() => searchTerm && setShowSuggestions(true)}
+            onBlur={handleBlur}
+            className="pl-10 pr-4 py-2 w-full rounded-md shadow-sm"
+            aria-label="Search products"
+          />
+        </div>
+      </form>
       {showSuggestions && (searchTerm.length > 0) && (
         <Card className="absolute top-full mt-1 w-full z-50 shadow-lg rounded-md border">
           <CardContent className="p-2 max-h-60 overflow-y-auto">

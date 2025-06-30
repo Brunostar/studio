@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { ProductList } from '@/components/products/ProductList';
 import { CategoryTabs } from '@/components/products/CategoryTabs';
 import { CATEGORIES } from '@/lib/mock-data';
@@ -13,6 +14,8 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<Category>(CATEGORIES[0]); // Default to 'All'
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get('search');
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -25,15 +28,31 @@ export default function ProductsPage() {
   }, []);
 
   const filteredProducts = useMemo(() => {
-    if (selectedCategory === 'All') {
-      return products;
+    let tempProducts = products;
+    
+    if (selectedCategory !== 'All') {
+      tempProducts = tempProducts.filter(product => product.category === selectedCategory);
     }
-    return products.filter(product => product.category === selectedCategory);
-  }, [selectedCategory, products]);
+    
+    if (searchQuery) {
+        tempProducts = tempProducts.filter(product => 
+            product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            product.description.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }
+
+    return tempProducts;
+  }, [selectedCategory, products, searchQuery]);
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center font-headline text-primary">Our Products</h1>
+      {searchQuery ? (
+        <h1 className="text-3xl font-bold mb-8 text-center font-headline text-primary">
+          Search Results for "{searchQuery}"
+        </h1>
+      ) : (
+        <h1 className="text-3xl font-bold mb-8 text-center font-headline text-primary">Our Products</h1>
+      )}
       <CategoryTabs selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
