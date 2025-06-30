@@ -3,12 +3,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
 import type { Product } from '@/types';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
-import { generateProductDescription } from '@/ai/flows/generate-product-description';
 import { ProductActions } from '@/components/products/ProductActions';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
@@ -18,21 +15,6 @@ import { ProductImageCarousel } from '@/components/products/ProductImageCarousel
 
 interface ProductPageParams {
   params: { productId: string };
-}
-
-// Component for the AI-generated description with a loading fallback
-async function AiDescription({ product }: { product: Product }) {
-  try {
-    const { generatedDescription } = await generateProductDescription({
-      productTitle: product.title,
-      productDescription: product.description,
-    });
-    return <p className="text-lg text-muted-foreground">{generatedDescription}</p>;
-  } catch (error) {
-    console.error("Failed to generate AI description, falling back to original.", error);
-    // Fallback to the original description if AI fails
-    return <p className="text-lg text-muted-foreground">{product.description}</p>;
-  }
 }
 
 export default async function ProductPage({ params }: ProductPageParams) {
@@ -79,9 +61,7 @@ export default async function ProductPage({ params }: ProductPageParams) {
                   <p className="text-3xl font-bold text-accent mb-4">${product.price.toFixed(2)}</p>
                   <Separator className="my-4" />
                   <h2 className="text-xl font-semibold mb-2">About this item</h2>
-                  <Suspense fallback={<Skeleton className="h-24 w-full" />}>
-                     <AiDescription product={product} />
-                  </Suspense>
+                  <p className="text-lg text-muted-foreground">{product.description}</p>
                 </div>
                 <div className="pt-4">
                   <ProductActions product={product} />
