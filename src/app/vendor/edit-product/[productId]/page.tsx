@@ -252,7 +252,7 @@ export default function EditProductPage() {
                   <FormLabel>Sub-Category</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value} disabled={subCategoryOptions.length === 0}>
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Select a sub-category" /></SelectValue>
+                        <SelectTrigger><SelectValue placeholder="Select a sub-category" /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {subCategoryOptions.filter(c => c !== 'All').map(sub => (
