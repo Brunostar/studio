@@ -6,14 +6,12 @@ import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ProductList } from '@/components/products/ProductList';
 import { CategoryTabs } from '@/components/products/CategoryTabs';
-import { MARKET_CATEGORIES } from '@/lib/mock-data';
+import { MARKET_CATEGORIES, CATEGORIES } from '@/lib/mock-data';
 import { getAllProducts } from '@/services/productService';
 import type { Product, Category } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { useMarket } from '@/context/MarketContext';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 function ProductsPageContent() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -22,7 +20,7 @@ function ProductsPageContent() {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
   
-  const { selectedMarket: mainCategory, isMarketLoading } = useMarket();
+  const { selectedMarket: mainCategory, setSelectedMarket, isMarketLoading } = useMarket();
   
   const [selectedSubCategory, setSelectedSubCategory] = useState<Category>('All');
 
@@ -82,44 +80,29 @@ function ProductsPageContent() {
     return tempProducts;
   }, [selectedSubCategory, productsInMainCategory, searchQuery, mainCategory]);
   
-  const getPageTitle = () => {
-    if (searchQuery) {
-      return `Search Results for "${searchQuery}"`;
-    }
-    if (mainCategory) {
-      return `${mainCategory} Market`;
-    }
-    return "Our Products";
-  };
-  
   if (isMarketLoading) {
     return <PageSkeleton />;
   }
-  
-  if (!mainCategory && !searchQuery) {
-      return (
-        <div className="container mx-auto px-4 py-8">
-             <Card className="text-center">
-                 <CardHeader>
-                     <CardTitle>No Market Selected</CardTitle>
-                 </CardHeader>
-                 <CardContent>
-                    <p>Please select a market from the homepage to start browsing.</p>
-                     <Button asChild className="mt-4">
-                         <Link href="/">Go to Homepage</Link>
-                     </Button>
-                 </CardContent>
-             </Card>
-        </div>
-      )
-  }
-
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-8 text-center font-headline text-primary">
-        {getPageTitle()}
-      </h1>
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8 text-center">
+        <h1 className="text-2xl sm:text-3xl font-bold font-headline text-primary">
+          {searchQuery ? `Search Results for "${searchQuery}"` : 'Browsing Market:'}
+        </h1>
+        {!searchQuery && (
+          <Select value={mainCategory || ''} onValueChange={(value) => setSelectedMarket(value as Category)}>
+            <SelectTrigger className="w-full sm:w-[250px]">
+              <SelectValue placeholder="Select a market..." />
+            </SelectTrigger>
+            <SelectContent>
+              {CATEGORIES.map(cat => (
+                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      </div>
       
       {mainCategory && subCategories.length > 1 && (
         <div className="mb-8">
