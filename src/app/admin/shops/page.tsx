@@ -9,7 +9,7 @@ export default async function AdminShopsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold font-headline text-primary">Shop Approvals</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold font-headline text-primary">Shop Approvals</h1>
         <p className="text-muted-foreground">Review and approve new vendor shops.</p>
       </div>
       <ShopApprovalList initialShops={shops} />

@@ -33,7 +33,7 @@ export function CartItemCard({ item }: CartItemCardProps) {
       <div className="flex-grow flex flex-col gap-2">
         <div className="flex justify-between items-start">
           <div className="flex-grow pr-2">
-            <h3 className="font-semibold text-md leading-tight">{item.product.title}</h3>
+            <h3 className="font-semibold text-sm md:text-base leading-tight">{item.product.title}</h3>
             <p className="text-sm text-muted-foreground">{item.product.price.toLocaleString()} XAF</p>
           </div>
            <Button
@@ -79,7 +79,7 @@ export function CartItemCard({ item }: CartItemCardProps) {
               <Plus className="h-4 w-4" />
             </Button>
           </div>
-          <p className="font-semibold text-md text-right">{(item.product.price * item.quantity).toLocaleString()} XAF</p>
+          <p className="font-semibold text-sm md:text-base text-right">{(item.product.price * item.quantity).toLocaleString()} XAF</p>
         </div>
       </div>
     </div>

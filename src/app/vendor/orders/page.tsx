@@ -25,7 +25,7 @@ export default function VendorOrdersPage() {
   if (loading) {
     return (
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold font-headline text-primary">Your Orders & Inquiries</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold font-headline text-primary">Your Orders & Inquiries</h1>
         <Skeleton className="h-96 w-full" />
       </div>
     )
@@ -53,7 +53,7 @@ export default function VendorOrdersPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold font-headline text-primary">Your Orders & Inquiries</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold font-headline text-primary">Your Orders & Inquiries</h1>
       
       {vendorOrders.length === 0 ? (
         <p className="text-center text-muted-foreground py-8">You have no orders or inquiries yet.</p>
@@ -66,7 +66,7 @@ export default function VendorOrdersPage() {
                     <CardHeader>
                         <div className="flex justify-between items-start">
                              <div>
-                                <CardTitle className="text-lg">Order #{order.id.toUpperCase()}</CardTitle>
+                                <CardTitle className="text-lg">{order.id.toUpperCase()}</CardTitle>
                                 <CardDescription>{new Date(order.orderDate).toLocaleDateString()}</CardDescription>
                              </div>
                              <Badge variant={order.status === 'New Inquiry' ? 'default' : order.status === 'Delivered' ? 'secondary': 'outline'}>

@@ -57,7 +57,7 @@ export default function VendorDashboardPage() {
   return (
     <div className="space-y-6">
       <div className="mb-4">
-        <h1 className="text-3xl font-bold font-headline text-primary">Dashboard</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold font-headline text-primary">Dashboard</h1>
         <p className="text-muted-foreground">An overview of your shop and activities.</p>
       </div>
 

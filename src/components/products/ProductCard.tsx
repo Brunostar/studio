@@ -46,10 +46,10 @@ export function ProductCard({ product }: ProductCardProps) {
       </CardHeader>
       <CardContent className="p-4 flex-grow">
         <Link href={`/products/${product.id}`} className="hover:underline">
-          <CardTitle className="text-lg font-semibold mb-1 font-headline">{product.title}</CardTitle>
+          <CardTitle className="text-base font-semibold mb-1 font-headline">{product.title}</CardTitle>
         </Link>
         <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{product.description}</p>
-        <p className="text-xl font-bold text-primary mb-2">{product.price.toLocaleString()} XAF</p>
+        <p className="text-lg font-bold text-primary mb-2">{product.price.toLocaleString()} XAF</p>
         {product.stock <= 0 && (
           <Badge variant="destructive" className="mb-2">Out of Stock</Badge>
         )}

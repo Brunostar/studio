@@ -54,7 +54,7 @@ export default async function ShopPage({ params }: ShopPageParams) {
             />
           </div>
           <div className="flex-grow">
-            <CardTitle className="text-2xl md:text-3xl font-bold font-headline text-primary">{shop.name}</CardTitle>
+            <CardTitle className="text-xl md:text-2xl font-bold font-headline text-primary">{shop.name}</CardTitle>
             <p className="text-muted-foreground mt-1">{shop.description}</p>
             {shop.location && (
                  <div className="mt-2 flex items-center text-sm text-muted-foreground">

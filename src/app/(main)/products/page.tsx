@@ -117,7 +117,7 @@ function ProductsPageContent() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center font-headline text-primary">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-8 text-center font-headline text-primary">
         {getPageTitle()}
       </h1>
       

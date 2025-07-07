@@ -23,8 +23,8 @@ export default function HomePage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <section className="text-center mb-12">
-        <h1 className="text-4xl sm:text-5xl font-bold mb-4 font-headline text-primary">Welcome to Cameroon Market</h1>
-        <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 font-headline text-primary">Welcome to Cameroon Market</h1>
+        <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto">
           Your central hub for discovering products from vendors across Cameroon. Select a market to begin your search.
         </p>
       </section>
@@ -44,8 +44,8 @@ export default function HomePage() {
                     {category.icon}
                   </div>
                   <div>
-                    <CardTitle className="text-2xl font-bold group-hover:text-accent">{category.name}</CardTitle>
-                    <CardDescription className="mt-2">{category.description}</CardDescription>
+                    <CardTitle className="text-xl md:text-2xl font-bold group-hover:text-accent">{category.name}</CardTitle>
+                    <CardDescription className="mt-2 text-sm">{category.description}</CardDescription>
                   </div>
                 </CardHeader>
               </Card>

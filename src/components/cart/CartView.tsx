@@ -97,7 +97,7 @@ export function CartView() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
       <div className="lg:col-span-2 space-y-6">
-        <h1 className="text-3xl font-bold font-headline text-primary">Your Shopping Cart</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold font-headline text-primary">Your Shopping Cart</h1>
         
         {isFetchingShops && Object.keys(shops).length < shopIds.length && (
           <div className="flex items-center justify-center p-12">
@@ -131,7 +131,7 @@ export function CartView() {
                 ))}
               </CardContent>
               <CardFooter className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-secondary/30">
-                <div className="font-semibold text-lg">
+                <div className="font-semibold text-base md:text-lg">
                   Shop Subtotal: {shopTotal.toLocaleString()} XAF
                 </div>
                 <Button
@@ -153,7 +153,7 @@ export function CartView() {
             <CardTitle>Order Summary</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="w-full flex justify-between items-center text-xl font-bold text-primary">
+            <div className="w-full flex justify-between items-center text-lg md:text-xl font-bold text-primary">
               <span>Grand Total:</span>
               <span>{getCartTotal().toLocaleString()} XAF</span>
             </div>

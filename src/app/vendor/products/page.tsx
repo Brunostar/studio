@@ -81,7 +81,7 @@ export default function VendorProductsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-headline text-primary">Your Products</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold font-headline text-primary">Your Products</h1>
           <p className="text-muted-foreground">A list of all products in your shop.</p>
         </div>
         <Button asChild className="w-full sm:w-auto">
@@ -127,7 +127,7 @@ export default function VendorProductsPage() {
                         <div>
                             <Badge variant="outline" className="mb-1">{product.category}</Badge>
                             <h3 className="font-semibold leading-tight">{product.title}</h3>
-                            <p className="text-sm text-primary font-bold">${product.price.toFixed(2)}</p>
+                            <p className="text-sm text-primary font-bold">{product.price.toLocaleString()} XAF</p>
                             <p className="text-xs text-muted-foreground">Stock: {product.stock}</p>
                         </div>
                     </div>
@@ -176,7 +176,7 @@ export default function VendorProductsPage() {
                         <TableCell>
                           <Badge variant="outline">{product.category}</Badge>
                         </TableCell>
-                        <TableCell>${product.price.toFixed(2)}</TableCell>
+                        <TableCell>{product.price.toLocaleString()} XAF</TableCell>
                         <TableCell>{product.stock}</TableCell>
                         <TableCell className="text-right">
                           <Button asChild variant="outline" size="icon">

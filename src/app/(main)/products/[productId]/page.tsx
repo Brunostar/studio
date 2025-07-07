@@ -47,9 +47,9 @@ export default async function ProductPage({ params }: ProductPageParams) {
               <div className="flex justify-between items-start">
                   <div>
                     <Badge variant="outline" className="mb-2">{product.category}</Badge>
-                    <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">{product.title}</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold font-headline text-primary">{product.title}</h1>
                     {product.manufacturer && (
-                        <p className="text-md text-muted-foreground mt-1">by {product.manufacturer}</p>
+                        <p className="text-sm text-muted-foreground mt-1">by {product.manufacturer}</p>
                     )}
                   </div>
                   {shop && (
@@ -61,10 +61,10 @@ export default async function ProductPage({ params }: ProductPageParams) {
             </CardHeader>
             <CardContent className="space-y-6 flex-grow flex flex-col justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-accent mb-4">{product.price.toLocaleString()} XAF</p>
+                  <p className="text-2xl md:text-3xl font-bold text-accent mb-4">{product.price.toLocaleString()} XAF</p>
                   <Separator className="my-4" />
-                  <h2 className="text-xl font-semibold mb-2">About this item</h2>
-                  <p className="text-lg text-muted-foreground">{product.description}</p>
+                  <h2 className="text-lg font-semibold mb-2">About this item</h2>
+                  <p className="text-base md:text-lg text-muted-foreground">{product.description}</p>
                 </div>
                 <div className="pt-4">
                   <ProductActions product={product} />
