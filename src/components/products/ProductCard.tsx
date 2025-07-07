@@ -44,11 +44,11 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         </Link>
       </CardHeader>
-      <CardContent className="p-2 sm:p-3 flex-grow">
+      <CardContent className="p-2 flex-grow">
         <Link href={`/products/${product.id}`} className="hover:underline">
           <CardTitle className="text-sm font-semibold mb-1 line-clamp-2">{product.title}</CardTitle>
         </Link>
-        <p className="text-base font-bold text-primary mb-2">{product.price.toLocaleString()} XAF</p>
+        <p className="text-sm font-bold text-primary mb-2">{product.price.toLocaleString()} XAF</p>
         {product.stock <= 0 && (
           <Badge variant="destructive" className="text-xs">Out of Stock</Badge>
         )}
@@ -56,7 +56,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <Badge variant="secondary" className="text-xs">Low Stock</Badge>
         )}
       </CardContent>
-      <CardFooter className="p-2 sm:p-3 border-t mt-auto">
+      <CardFooter className="p-2 border-t mt-auto">
         <Button 
           onClick={handleAddToCart} 
           disabled={product.stock <= 0}

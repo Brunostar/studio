@@ -1,14 +1,17 @@
+
 'use client';
 
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Laptop, Car, Shirt, ToyBrick, Home as HomeIcon, BookOpen, Star } from 'lucide-react';
+import { Laptop, Car, Shirt, ToyBrick, Home as HomeIcon, BookOpen, Star, Store } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useMarket } from '@/context/MarketContext';
 import { ProductList } from '@/components/products/ProductList';
-import type { Product } from '@/types';
+import { ShopList } from '@/components/shops/ShopList';
+import type { Product, Shop } from '@/types';
 import { useState, useEffect } from 'react';
 import { getAllProducts } from '@/services/productService';
+import { getAllShops } from '@/services/shopService';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const marketCategories: { name: string; description: string; slug: string; icon: ReactNode; }[] = [
@@ -22,8 +25,8 @@ const marketCategories: { name: string; description: string; slug: string; icon:
 
 function ProductGridSkeleton() {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-      {[...Array(5)].map((_, i) => (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      {[...Array(6)].map((_, i) => (
           <div key={i} className="flex flex-col space-y-3">
           <Skeleton className="h-[200px] w-full rounded-xl" />
           <div className="space-y-2">
@@ -36,21 +39,49 @@ function ProductGridSkeleton() {
   )
 }
 
+function ShopGridSkeleton() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="flex flex-col space-y-3">
+          <Skeleton className="h-[120px] w-full rounded-xl" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[150px]" />
+            <Skeleton className="h-4 w-[200px]" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 
 export default function HomePage() {
   const { setSelectedMarket } = useMarket();
   const [popularProducts, setPopularProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [popularShops, setPopularShops] = useState<Shop[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [isLoadingShops, setIsLoadingShops] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
-      setIsLoading(true);
+      setIsLoadingProducts(true);
       const allProducts = await getAllProducts();
-      // Simple logic to get "popular" products - take first 10
-      setPopularProducts(allProducts.slice(0, 10));
-      setIsLoading(false);
+      // Simple logic to get "popular" products - take first 12
+      setPopularProducts(allProducts.slice(0, 12));
+      setIsLoadingProducts(false);
     };
+
+    const fetchShops = async () => {
+      setIsLoadingShops(true);
+      const allShops = await getAllShops();
+      // Simple logic for popular shops - take first 4 approved
+      setPopularShops(allShops.filter(s => s.approved).slice(0, 4));
+      setIsLoadingShops(false);
+    }
+
     fetchProducts();
+    fetchShops();
   }, []);
 
   return (
@@ -87,15 +118,27 @@ export default function HomePage() {
         </div>
       </section>
       
-      <section>
+      <section className="mb-12">
         <div className="flex items-center gap-3 mb-6">
           <Star className="w-6 h-6 text-accent" />
           <h2 className="text-2xl font-bold font-headline text-primary">Popular Products</h2>
         </div>
-        {isLoading ? (
+        {isLoadingProducts ? (
           <ProductGridSkeleton />
         ) : (
           <ProductList products={popularProducts} />
+        )}
+      </section>
+
+      <section>
+        <div className="flex items-center gap-3 mb-6">
+          <Store className="w-6 h-6 text-accent" />
+          <h2 className="text-2xl font-bold font-headline text-primary">Popular Shops</h2>
+        </div>
+        {isLoadingShops ? (
+          <ShopGridSkeleton />
+        ) : (
+          <ShopList shops={popularShops} />
         )}
       </section>
     </div>
