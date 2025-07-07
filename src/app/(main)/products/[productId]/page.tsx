@@ -61,7 +61,7 @@ export default async function ProductPage({ params }: ProductPageParams) {
             </CardHeader>
             <CardContent className="space-y-6 flex-grow flex flex-col justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-accent mb-4">${product.price.toFixed(2)}</p>
+                  <p className="text-3xl font-bold text-accent mb-4">{product.price.toLocaleString()} XAF</p>
                   <Separator className="my-4" />
                   <h2 className="text-xl font-semibold mb-2">About this item</h2>
                   <p className="text-lg text-muted-foreground">{product.description}</p>

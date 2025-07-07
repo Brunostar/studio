@@ -31,7 +31,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const editProductFormSchema = z.object({
   title: z.string().min(3, { message: 'Title must be at least 3 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
-  price: z.coerce.number().min(0.01, { message: 'Price must be a positive number.' }),
+  price: z.coerce.number().int().min(1, { message: 'Price must be a positive number.' }),
   stock: z.coerce.number().int().min(0, { message: 'Stock cannot be negative.' }),
   subCategory: z.string().min(1, { message: "Please select a sub-category." }),
   manufacturer: z.string().optional(),
@@ -226,8 +226,8 @@ export default function EditProductPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField control={form.control} name="price" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Price ($)</FormLabel>
-                      <FormControl><Input type="number" step="0.01" placeholder="e.g., 99.99" {...field} /></FormControl>
+                      <FormLabel>Price (XAF)</FormLabel>
+                      <FormControl><Input type="number" step="1" placeholder="e.g., 5000" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
@@ -270,7 +270,7 @@ export default function EditProductPage() {
                 <div className="flex gap-2 flex-wrap p-2 border rounded-md min-h-24">
                   {product.images.length > 0 ? product.images.map((url, i) => (
                     <div key={i} className="relative w-24 h-24 rounded-md overflow-hidden bg-muted">
-                       <Image src={url} alt={`Current image ${i+1}`} fill sizes="96px" className="object-cover" />
+                       <Image src={url} alt={`Current image ${i+1}`} fill className="object-cover" />
                     </div>
                   )) : <p className="text-sm text-muted-foreground p-2">No current images.</p>}
                 </div>

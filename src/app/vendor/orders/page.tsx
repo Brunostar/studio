@@ -87,7 +87,7 @@ export default function VendorOrdersPage() {
                         </div>
                     </CardContent>
                     <CardFooter>
-                         <p className="font-semibold text-primary w-full text-right">Total: ${order.totalAmount.toFixed(2)}</p>
+                         <p className="font-semibold text-primary w-full text-right">Total: {order.totalAmount.toLocaleString()} XAF</p>
                     </CardFooter>
                 </Card>
             ))}
@@ -120,7 +120,7 @@ export default function VendorOrdersPage() {
                         ))}
                         </ul>
                     </TableCell>
-                    <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
+                    <TableCell>{order.totalAmount.toLocaleString()} XAF</TableCell>
                     <TableCell>
                         <Badge variant={order.status === 'New Inquiry' ? 'default' : order.status === 'Delivered' ? 'secondary': 'outline'}>
                         {order.status}

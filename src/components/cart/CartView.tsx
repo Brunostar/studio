@@ -61,12 +61,12 @@ export function CartView() {
     if (!shop.whatsappNumber) return;
 
     const itemsText = items
-      .map(item => `${item.product.title} (Qty: ${item.quantity}) - $${(item.product.price * item.quantity).toFixed(2)}`)
+      .map(item => `${item.product.title} (Qty: ${item.quantity}) - ${(item.product.price * item.quantity).toLocaleString()} XAF`)
       .join(',\n');
     
-    const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0).toFixed(2);
+    const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0).toLocaleString();
     const message = encodeURIComponent(
-      `Hello ${shop.name},\nI would like to order the following items from your shop:\n${itemsText}\n\nShop Subtotal: $${total}\n\nThank you!`
+      `Hello ${shop.name},\nI would like to order the following items from your shop:\n${itemsText}\n\nShop Subtotal: ${total} XAF\n\nThank you!`
     );
 
     const whatsappUrl = `https://wa.me/${shop.whatsappNumber}?text=${message}`;
@@ -132,7 +132,7 @@ export function CartView() {
               </CardContent>
               <CardFooter className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-secondary/30">
                 <div className="font-semibold text-lg">
-                  Shop Subtotal: ${shopTotal.toFixed(2)}
+                  Shop Subtotal: {shopTotal.toLocaleString()} XAF
                 </div>
                 <Button
                   onClick={() => handleWhatsAppCheckout(shop, items)}
@@ -155,7 +155,7 @@ export function CartView() {
           <CardContent className="space-y-4">
             <div className="w-full flex justify-between items-center text-xl font-bold text-primary">
               <span>Grand Total:</span>
-              <span>${getCartTotal().toFixed(2)}</span>
+              <span>{getCartTotal().toLocaleString()} XAF</span>
             </div>
             <Separator />
             <p className="text-xs text-muted-foreground text-center">
