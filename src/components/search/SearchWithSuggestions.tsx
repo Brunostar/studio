@@ -48,7 +48,7 @@ export default function SearchWithSuggestions() {
   return (
     <>
       {/* Desktop Search Bar */}
-      <div className="hidden md:block relative w-full max-w-sm">
+      <div className="hidden md:block relative w-full max-w-md">
         <form onSubmit={handleDesktopSubmit} role="search">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />

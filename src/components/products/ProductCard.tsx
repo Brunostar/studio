@@ -29,10 +29,10 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <Card className="flex flex-col overflow-hidden rounded-lg shadow-lg transition-all hover:shadow-xl h-full">
+    <Card className="flex flex-col overflow-hidden rounded-lg shadow-sm transition-all hover:shadow-lg h-full border">
       <CardHeader className="p-0">
         <Link href={`/products/${product.id}`} aria-label={`View details for ${product.title}`}>
-          <div className="aspect-square relative w-full">
+          <div className="aspect-square relative w-full bg-muted">
             <Image
               src={product.images[0] || 'https://placehold.co/600x600.png'}
               alt={product.title}
@@ -44,24 +44,25 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         </Link>
       </CardHeader>
-      <CardContent className="p-4 flex-grow">
+      <CardContent className="p-2 sm:p-3 flex-grow">
         <Link href={`/products/${product.id}`} className="hover:underline">
-          <CardTitle className="text-base font-semibold mb-1 font-headline">{product.title}</CardTitle>
+          <CardTitle className="text-sm font-semibold mb-1 line-clamp-2">{product.title}</CardTitle>
         </Link>
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{product.description}</p>
-        <p className="text-lg font-bold text-primary mb-2">{product.price.toLocaleString()} XAF</p>
+        <p className="text-base font-bold text-primary mb-2">{product.price.toLocaleString()} XAF</p>
         {product.stock <= 0 && (
-          <Badge variant="destructive" className="mb-2">Out of Stock</Badge>
+          <Badge variant="destructive" className="text-xs">Out of Stock</Badge>
         )}
         {product.stock > 0 && product.stock < 10 && (
-          <Badge variant="secondary" className="mb-2">Low Stock: {product.stock} left</Badge>
+          <Badge variant="secondary" className="text-xs">Low Stock</Badge>
         )}
       </CardContent>
-      <CardFooter className="p-4 border-t">
+      <CardFooter className="p-2 sm:p-3 border-t mt-auto">
         <Button 
           onClick={handleAddToCart} 
           disabled={product.stock <= 0}
-          className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+          className="w-full"
+          variant="outline"
+          size="sm"
           aria-label={`Add ${product.title} to cart`}
         >
           <ShoppingCart className="mr-2 h-4 w-4" />
