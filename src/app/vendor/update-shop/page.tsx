@@ -10,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { getMyShop, updateShop } from '@/services/shopService';
+import { getMyShop, saveShop } from '@/services/shopService';
 import type { Shop } from '@/types';
 import { storage } from '@/lib/firebase';
 import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
@@ -145,7 +145,7 @@ export default function UpdateShopPage() {
         category: data.category, // Pass the category, though it's not edited
       };
 
-      await updateShop(updateData, token);
+      await saveShop(updateData, token);
       await refetchUserProfile();
 
       toast({
@@ -314,7 +314,7 @@ export default function UpdateShopPage() {
                   <FormLabel>Cover Photo</FormLabel>
                    {coverPreview && (
                       <div className="relative w-full aspect-[2/1] mb-2">
-                         <Image src={coverPreview} alt="Cover photo preview" layout="fill" className="object-cover rounded-md bg-muted" />
+                         <Image src={coverPreview} alt="Cover photo preview" fill className="object-cover rounded-md bg-muted" />
                       </div>
                     )}
                   <FormControl>

@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CATEGORIES } from '@/lib/mock-data';
+import { saveShop } from '@/services/shopService';
 
 const createShopFormSchema = z.object({
   name: z.string().min(3, { message: 'Shop name must be at least 3 characters.' }),
@@ -60,29 +61,13 @@ export default function CreateShopPage() {
     setIsSubmitting(true);
     try {
       const token = await user.getIdToken();
-      const response = await fetch('https://e-electro-backend.onrender.com/api/shops', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          name: data.name,
-          description: data.description,
-          whatsappNumber: data.whatsappNumber,
-          category: data.category,
-        })
-      });
-
-      if (!response.ok) {
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to create shop. Please try again.');
-        } else {
-            throw new Error(`Server error: ${response.status} ${response.statusText}`);
-        }
-      }
+      
+      await saveShop({
+        name: data.name,
+        description: data.description,
+        whatsappNumber: data.whatsappNumber,
+        category: data.category,
+      }, token);
       
       await refetchUserProfile();
 

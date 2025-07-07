@@ -54,7 +54,7 @@ export async function getMyShop(vendorId: string, token: string): Promise<Shop |
   }
 }
 
-export async function updateShop(shopData: Partial<Omit<Shop, 'id'>>, token: string): Promise<Shop> {
+export async function saveShop(shopData: Partial<Omit<Shop, 'id' | 'vendorId' | 'approved'>>, token: string): Promise<Shop> {
   const res = await fetch(`${API_BASE_URL}/shops`, {
     method: 'POST',
     headers: {
@@ -68,7 +68,7 @@ export async function updateShop(shopData: Partial<Omit<Shop, 'id'>>, token: str
     const contentType = res.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
       const errorData = await res.json();
-      throw new Error(errorData.message || 'Failed to update shop.');
+      throw new Error(errorData.message || 'Failed to save shop.');
     } else {
       const textError = await res.text();
       throw new Error(`Server error: ${res.status} ${res.statusText} - ${textError}`);
@@ -76,8 +76,8 @@ export async function updateShop(shopData: Partial<Omit<Shop, 'id'>>, token: str
   }
 
   const result = await res.json();
-  // The backend returns { message: "...", data: {...} }. We'll return the data part.
-  return result.data;
+  // The backend may return { message: "...", data: {...} }. We'll handle both cases.
+  return result.data || result;
 }
 
 export async function approveShop(vendorId: string, token: string): Promise<{ message: string }> {
