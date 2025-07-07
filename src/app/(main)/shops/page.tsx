@@ -1,19 +1,41 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
 import { ShopList } from '@/components/shops/ShopList';
 import { getAllShops } from '@/services/shopService';
-import type { Shop } from '@/types';
+import type { Shop, Category } from '@/types';
 import { useMarket } from '@/context/MarketContext';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CATEGORIES } from '@/lib/mock-data';
+
+function PageSkeleton() {
+    return (
+        <div className="container mx-auto px-4 py-8">
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
+                <Skeleton className="h-9 w-48" />
+                <Skeleton className="h-10 w-full sm:w-[250px]" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {[...Array(8)].map((_, i) => (
+                    <div key={i} className="flex flex-col space-y-3">
+                        <Skeleton className="h-[150px] w-full rounded-xl" />
+                        <div className="space-y-2">
+                            <Skeleton className="h-4 w-[100px]" />
+                            <Skeleton className="h-4 w-[200px]" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
 
 export default function ShopsPage() {
   const [allShops, setAllShops] = useState<Shop[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { selectedMarket, isMarketLoading } = useMarket();
+  const { selectedMarket, setSelectedMarket, isMarketLoading } = useMarket();
 
   useEffect(() => {
     const fetchShops = async () => {
@@ -29,51 +51,31 @@ export default function ShopsPage() {
     if (!selectedMarket) {
       return [];
     }
-    return allShops.filter(shop => shop.category === selectedMarket);
+    // Only show approved shops in the selected market
+    return allShops.filter(shop => shop.approved && shop.category === selectedMarket);
   }, [allShops, selectedMarket]);
 
   if (isLoading || isMarketLoading) {
-    return (
-        <div className="container mx-auto px-4 py-8">
-            <Skeleton className="h-9 w-1/2 max-w-sm mx-auto mb-8" />
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                    <div key={i} className="flex flex-col space-y-3">
-                        <Skeleton className="h-[150px] w-full rounded-xl" />
-                        <div className="space-y-2">
-                            <Skeleton className="h-4 w-[100px]" />
-                            <Skeleton className="h-4 w-[200px]" />
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    )
-  }
-
-  if (!selectedMarket) {
-      return (
-        <div className="container mx-auto px-4 py-8">
-             <Card className="text-center">
-                 <CardHeader>
-                     <CardTitle>No Market Selected</CardTitle>
-                 </CardHeader>
-                 <CardContent>
-                    <p>Please select a market from the homepage to browse shops.</p>
-                     <Button asChild className="mt-4">
-                         <Link href="/">Go to Homepage</Link>
-                     </Button>
-                 </CardContent>
-             </Card>
-        </div>
-      )
+    return <PageSkeleton />;
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-8 text-center font-headline text-primary">
-        Discover Shops in {selectedMarket}
-      </h1>
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8 text-center">
+        <h1 className="text-2xl sm:text-3xl font-bold font-headline text-primary">
+          {selectedMarket ? `Shops in ${selectedMarket}` : 'Discover Shops'}
+        </h1>
+        <Select value={selectedMarket || ''} onValueChange={(value) => setSelectedMarket(value as Category)}>
+            <SelectTrigger className="w-full sm:w-[250px]">
+              <SelectValue placeholder="Select a market..." />
+            </SelectTrigger>
+            <SelectContent>
+              {CATEGORIES.map(cat => (
+                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+      </div>
       <ShopList shops={filteredShops} />
     </div>
   );
