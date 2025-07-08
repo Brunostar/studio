@@ -67,7 +67,6 @@ export default function HomePage() {
     const fetchProducts = async () => {
       setIsLoadingProducts(true);
       const allProducts = await getAllProducts();
-      // Simple logic to get "popular" products - take first 12
       setPopularProducts(allProducts.slice(0, 12));
       setIsLoadingProducts(false);
     };
@@ -75,7 +74,6 @@ export default function HomePage() {
     const fetchShops = async () => {
       setIsLoadingShops(true);
       const allShops = await getAllShops();
-      // Simple logic for popular shops - take first 4 approved
       setPopularShops(allShops.filter(s => s.approved).slice(0, 4));
       setIsLoadingShops(false);
     }
@@ -87,9 +85,9 @@ export default function HomePage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <section className="text-center mb-10">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-2 font-headline text-primary">Your Gateway to Cameroonian Commerce</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold mb-2 font-headline text-primary">Your Local Marketplace, Reimagined</h1>
         <p className="text-md sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-          Discover a vast selection of products from trusted vendors across the nation.
+          Find everything you need, right in your neighborhood.
         </p>
       </section>
 
