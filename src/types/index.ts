@@ -11,6 +11,7 @@ export interface Product {
   category: string;
   subCategory: string;
   manufacturer?: string;
+  features?: { name: string; value: string }[];
   vendorId: string;
   createdAt: string;
   isPopular?: boolean;

@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
@@ -21,7 +21,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, ArrowLeft, Lock } from 'lucide-react';
+import { Loader2, ArrowLeft, Lock, Trash2, PlusCircle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -32,6 +32,12 @@ const productFormSchema = z.object({
   stock: z.coerce.number().int().min(0, { message: 'Stock cannot be negative.' }),
   subCategory: z.string().min(1, { message: 'Please select a sub-category.' }),
   manufacturer: z.string().optional(),
+  features: z.array(
+    z.object({
+      name: z.string().min(1, 'Feature name is required.'),
+      value: z.string().min(1, 'Feature value is required.'),
+    })
+  ).optional(),
   images: z
     .any()
     .refine((files) => files?.length >= 1, "At least one image is required.")
@@ -55,8 +61,14 @@ export default function AddProductPage() {
       stock: 0,
       subCategory: '',
       manufacturer: '',
+      features: [],
       images: undefined,
     },
+  });
+  
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "features"
   });
 
   useEffect(() => {
@@ -102,6 +114,7 @@ export default function AddProductPage() {
         category: shop.category, // Inherit from shop
         subCategory: data.subCategory,
         manufacturer: data.manufacturer,
+        features: data.features,
         images: imageUrls,
       }, token);
 
@@ -221,6 +234,55 @@ export default function AddProductPage() {
                   <FormMessage />
                 </FormItem>
               )} />
+              
+              <Card>
+                <CardHeader>
+                    <CardTitle className="text-lg">Product Features</CardTitle>
+                    <CardDescription>Add key-value specifications for your product. (e.g., RAM: 8GB, Color: Black).</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {fields.map((field, index) => (
+                    <div key={field.id} className="flex items-end gap-4 p-2 border rounded-md">
+                      <FormField
+                        control={form.control}
+                        name={`features.${index}.name`}
+                        render={({ field }) => (
+                          <FormItem className="flex-1">
+                            <FormLabel>Feature Name</FormLabel>
+                            <FormControl><Input placeholder="e.g., Screen Size" {...field} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`features.${index}.value`}
+                        render={({ field }) => (
+                          <FormItem className="flex-1">
+                            <FormLabel>Feature Value</FormLabel>
+                            <FormControl><Input placeholder="e.g., 6.7 inches" {...field} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => append({ name: '', value: '' })}
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add Feature
+                  </Button>
+                </CardContent>
+              </Card>
+
 
               <FormField
                 control={form.control}
