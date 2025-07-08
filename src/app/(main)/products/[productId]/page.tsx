@@ -1,5 +1,3 @@
-
-
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -8,10 +6,12 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ProductActions } from '@/components/products/ProductActions';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import { getShopById } from '@/services/shopService';
-import { getProductById } from '@/services/productService';
+import { getAllProducts, getProductById } from '@/services/productService';
 import { ProductImageCarousel } from '@/components/products/ProductImageCarousel';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ProductList } from '@/components/products/ProductList';
 
 interface ProductPageParams {
   params: { productId: string };
@@ -26,6 +26,11 @@ export default async function ProductPage({ params }: ProductPageParams) {
   }
 
   const shop = await getShopById(product.shopId);
+  
+  const allProducts = await getAllProducts();
+  const relatedProducts = allProducts
+    .filter(p => p.category === product.category && p.id !== product.id)
+    .slice(0, 6);
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8">
@@ -33,7 +38,7 @@ export default async function ProductPage({ params }: ProductPageParams) {
          <ArrowLeft className="h-4 w-4" />
          Back to Products
       </Link>
-      <Card className="overflow-hidden shadow-lg">
+      <Card className="overflow-hidden shadow-lg mb-12">
         <div className="grid md:grid-cols-2">
           <div className="p-4 md:p-6">
             <ProductImageCarousel 
@@ -73,6 +78,23 @@ export default async function ProductPage({ params }: ProductPageParams) {
           </div>
         </div>
       </Card>
+      
+      <div className="mb-12">
+        <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle className="font-bold">Important: Buyer Safety Warning</AlertTitle>
+            <AlertDescription>
+              For your safety, do not make any payments online. Always arrange to meet the vendor in person, thoroughly inspect the product to ensure it meets your expectations, and pay only upon collection.
+            </AlertDescription>
+        </Alert>
+      </div>
+
+      {relatedProducts.length > 0 && (
+          <section>
+            <h2 className="text-2xl font-bold mb-6 font-headline text-primary">Related Products</h2>
+            <ProductList products={relatedProducts} />
+          </section>
+      )}
     </div>
   );
 }
