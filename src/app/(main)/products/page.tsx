@@ -48,37 +48,28 @@ function ProductsPageContent() {
     setSelectedSubCategory('All');
   }, [mainCategory]);
 
-  const { productsInMainCategory, subCategories } = useMemo(() => {
-    if (!mainCategory) {
-      // If no main category, show products based on search
-       const prods = searchQuery 
-        ? products.filter(product => filterBySearchQuery(product, searchQuery))
-        : []; // Don't show all products, prompt to select market
-      return { productsInMainCategory: prods, subCategories: [] };
-    }
-
-    const productsInMainCategory = products.filter(p => p.category === mainCategory);
-    const subCategories = MARKET_CATEGORIES[mainCategory] || ['All'];
-    
-    return { productsInMainCategory, subCategories };
-  }, [mainCategory, products, searchQuery]);
-
-
-  const filteredProducts = useMemo(() => {
-    let tempProducts = productsInMainCategory;
-    
-    if (selectedSubCategory !== 'All') {
-      tempProducts = tempProducts.filter(product => product.subCategory === selectedSubCategory);
+  const { filteredProducts, subCategories } = useMemo(() => {
+    // Search query takes precedence.
+    if (searchQuery) {
+      const searchResults = products.filter(product => filterBySearchQuery(product, searchQuery));
+      return { filteredProducts: searchResults, subCategories: [] };
     }
     
-    // Search query is now applied at the main category level above
-    // so we don't need to re-apply it here unless mainCategory is not present
-    if (!mainCategory && searchQuery) {
-        tempProducts = tempProducts.filter(product => filterBySearchQuery(product, searchQuery));
+    // If no search, filter by market.
+    if (mainCategory) {
+      let productsInMarket = products.filter(p => p.category === mainCategory);
+      const marketSubCategories = MARKET_CATEGORIES[mainCategory] || ['All'];
+
+      if (selectedSubCategory !== 'All') {
+        productsInMarket = productsInMarket.filter(p => p.subCategory === selectedSubCategory);
+      }
+      
+      return { filteredProducts: productsInMarket, subCategories: marketSubCategories };
     }
 
-    return tempProducts;
-  }, [selectedSubCategory, productsInMainCategory, searchQuery, mainCategory]);
+    // Default state: no search, no market.
+    return { filteredProducts: [], subCategories: [] };
+  }, [searchQuery, products, mainCategory, selectedSubCategory]);
   
   if (isMarketLoading) {
     return <PageSkeleton />;
@@ -104,7 +95,7 @@ function ProductsPageContent() {
         )}
       </div>
       
-      {mainCategory && subCategories.length > 1 && (
+      {!searchQuery && mainCategory && subCategories.length > 1 && (
         <div className="mb-8">
           <CategoryTabs 
             categories={subCategories} 
@@ -125,7 +116,7 @@ function ProductsPageContent() {
 
 function ProductGridSkeleton() {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
       {[...Array(10)].map((_, i) => (
           <div key={i} className="flex flex-col space-y-3">
           <Skeleton className="h-[250px] w-full rounded-xl" />
