@@ -3,13 +3,13 @@
 
 import Link from 'next/link';
 import { MapPin } from 'lucide-react';
-import { NavLink } from './NavLink';
+import { NavLink } from '@/components/layout/NavLink';
 import { CartIcon } from '@/components/cart/CartIcon';
 import SearchWithSuggestions from '@/components/search/SearchWithSuggestions';
-import { AuthStatus } from '../auth/AuthStatus';
+import { AuthStatus } from '@/components/auth/AuthStatus';
 import { useMarket } from '@/context/MarketContext';
-import { Skeleton } from '../ui/skeleton';
-import { Button } from '../ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 
 function CurrentMarketDisplay() {
   const { selectedMarket, isMarketLoading } = useMarket();
@@ -60,10 +60,10 @@ function BatoLogo() {
 export function AppHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 max-w-screen-2xl items-center">
+      <div className="container flex h-16 items-center justify-between">
         {/* Left Part: Logo and Desktop Nav */}
-        <div className="flex items-center">
-          <Link href="/" className="mr-6 flex items-center">
+        <div className="flex items-center gap-6">
+          <Link href="/" className="flex items-center">
             <BatoLogo />
           </Link>
           <nav className="hidden items-center gap-4 text-sm md:flex lg:gap-6">
@@ -72,9 +72,6 @@ export function AppHeader() {
             <NavLink href="/shops">Shops</NavLink>
           </nav>
         </div>
-
-        {/* Spacer to push right content */}
-        <div className="flex-1" />
 
         {/* Right Part: Search, Cart, Auth */}
         <div className="flex items-center space-x-1 sm:space-x-2">
