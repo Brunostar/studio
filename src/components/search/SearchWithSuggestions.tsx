@@ -24,7 +24,7 @@ export default function SearchWithSuggestions() {
     const trimmedQuery = query.trim();
     if (trimmedQuery) {
         setIsOpen(false); // Close sheet on search
-        router.push(`/products?search=${encodeURIComponent(trimmedQuery)}`);
+        router.push(`/search?q=${encodeURIComponent(trimmedQuery)}`);
     }
   };
 

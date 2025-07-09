@@ -3,7 +3,6 @@
 'use client';
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { ProductList } from '@/components/products/ProductList';
 import { CategoryTabs } from '@/components/products/CategoryTabs';
 import { MARKET_CATEGORIES, CATEGORIES } from '@/lib/mock-data';
@@ -17,21 +16,9 @@ function ProductsPageContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  const searchParams = useSearchParams();
-  const searchQuery = searchParams.get('search');
-  
   const { selectedMarket: mainCategory, setSelectedMarket, isMarketLoading } = useMarket();
   
   const [selectedSubCategory, setSelectedSubCategory] = useState<Category>('All');
-
-  const filterBySearchQuery = (product: Product, query: string) => {
-    const lowerCaseQuery = query.toLowerCase();
-    return (
-        product.title.toLowerCase().includes(lowerCaseQuery) ||
-        product.description.toLowerCase().includes(lowerCaseQuery) ||
-        (product.manufacturer && product.manufacturer.toLowerCase().includes(lowerCaseQuery))
-    );
-  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -49,13 +36,6 @@ function ProductsPageContent() {
   }, [mainCategory]);
 
   const { filteredProducts, subCategories } = useMemo(() => {
-    // Search query takes precedence.
-    if (searchQuery) {
-      const searchResults = products.filter(product => filterBySearchQuery(product, searchQuery));
-      return { filteredProducts: searchResults, subCategories: [] };
-    }
-    
-    // If no search, filter by market.
     if (mainCategory) {
       let productsInMarket = products.filter(p => p.category === mainCategory);
       const marketSubCategories = MARKET_CATEGORIES[mainCategory] || ['All'];
@@ -67,9 +47,9 @@ function ProductsPageContent() {
       return { filteredProducts: productsInMarket, subCategories: marketSubCategories };
     }
 
-    // Default state: no search, no market.
+    // Default state: no market selected.
     return { filteredProducts: [], subCategories: [] };
-  }, [searchQuery, products, mainCategory, selectedSubCategory]);
+  }, [products, mainCategory, selectedSubCategory]);
   
   if (isMarketLoading) {
     return <PageSkeleton />;
@@ -79,23 +59,21 @@ function ProductsPageContent() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8 text-center">
         <h1 className="text-2xl sm:text-3xl font-bold font-headline text-primary">
-          {searchQuery ? `Search Results for "${searchQuery}"` : 'Browsing Market:'}
+          Browsing Market:
         </h1>
-        {!searchQuery && (
-          <Select value={mainCategory || ''} onValueChange={(value) => setSelectedMarket(value as Category)}>
-            <SelectTrigger className="w-full sm:w-[250px]">
-              <SelectValue placeholder="Select a market..." />
-            </SelectTrigger>
-            <SelectContent>
-              {CATEGORIES.map(cat => (
-                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+        <Select value={mainCategory || ''} onValueChange={(value) => setSelectedMarket(value as Category)}>
+          <SelectTrigger className="w-full sm:w-[250px]">
+            <SelectValue placeholder="Select a market..." />
+          </SelectTrigger>
+          <SelectContent>
+            {CATEGORIES.map(cat => (
+              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       
-      {!searchQuery && mainCategory && subCategories.length > 1 && (
+      {mainCategory && subCategories.length > 1 && (
         <div className="mb-8">
           <CategoryTabs 
             categories={subCategories} 
@@ -107,8 +85,10 @@ function ProductsPageContent() {
 
       {isLoading ? (
         <ProductGridSkeleton />
-      ) : (
+      ) : mainCategory ? (
         <ProductList products={filteredProducts} />
+      ) : (
+        <p className="text-center text-muted-foreground py-8">Please select a market to see products.</p>
       )}
     </div>
   );
