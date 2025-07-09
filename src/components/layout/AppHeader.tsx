@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -9,24 +10,23 @@ import { AuthStatus } from '@/components/auth/AuthStatus';
 import { useMarket } from '@/context/MarketContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect } from 'react';
 
 function CurrentMarketDisplay() {
   const { selectedMarket, isMarketLoading } = useMarket();
-  const [isClient, setIsClient] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient || isMarketLoading) {
+  // On the server, or on the client before the market is loaded from localStorage,
+  // isMarketLoading will be true.
+  if (isMarketLoading) {
+    // Render a placeholder that is consistent on both server and client initial render.
     return <Skeleton className="h-9 w-40 hidden md:flex" />;
   }
 
+  // After loading on the client, if no market is selected, render nothing.
   if (!selectedMarket) {
-    return null; // Don't show anything if no market is selected
+    return null;
   }
 
+  // Once loaded on the client and a market is selected, render the market display.
   return (
     <Button variant="ghost" size="sm" asChild className="hidden md:flex">
       <Link href="/" className="text-muted-foreground">
