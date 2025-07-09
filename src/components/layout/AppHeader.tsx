@@ -10,6 +10,7 @@ import { AuthStatus } from '@/components/auth/AuthStatus';
 import { useMarket } from '@/context/MarketContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
 
 function CurrentMarketDisplay() {
   const { selectedMarket, isMarketLoading } = useMarket();
@@ -65,18 +66,20 @@ function BatoLogo() {
 export function AppHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
-        {/* Left Part: Logo and Desktop Nav */}
-        <div className="flex items-center gap-6">
+      <div className="container flex h-16 items-center">
+        {/* Left Part: Logo */}
+        <div className="flex items-center">
           <Link href="/" className="flex items-center">
             <BatoLogo />
           </Link>
-          <nav className="hidden items-center gap-4 text-sm md:flex lg:gap-6">
-            <NavLink href="/">Home</NavLink>
-            <NavLink href="/products">Products</NavLink>
-            <NavLink href="/shops">Shops</NavLink>
-          </nav>
         </div>
+        
+        {/* Center Part: Desktop Nav */}
+        <nav className="hidden items-center gap-4 text-sm md:flex lg:gap-6 mx-auto">
+          <NavLink href="/">Home</NavLink>
+          <NavLink href="/products">Products</NavLink>
+          <NavLink href="/shops">Shops</NavLink>
+        </nav>
 
         {/* Right Part: Search, Cart, Auth */}
         <div className="flex items-center space-x-1 sm:space-x-2">
