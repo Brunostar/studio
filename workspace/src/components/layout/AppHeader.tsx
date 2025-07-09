@@ -3,13 +3,13 @@
 
 import Link from 'next/link';
 import { MapPin } from 'lucide-react';
-import { NavLink } from './NavLink';
+import { NavLink } from '@/components/layout/NavLink';
 import { CartIcon } from '@/components/cart/CartIcon';
 import SearchWithSuggestions from '@/components/search/SearchWithSuggestions';
-import { AuthStatus } from '../auth/AuthStatus';
+import { AuthStatus } from '@/components/auth/AuthStatus';
 import { useMarket } from '@/context/MarketContext';
-import { Skeleton } from '../ui/skeleton';
-import { Button } from '../ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 
 function CurrentMarketDisplay() {
   const { selectedMarket, isMarketLoading } = useMarket();
