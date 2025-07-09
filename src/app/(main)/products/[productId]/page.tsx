@@ -1,8 +1,9 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Product } from '@/types';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ProductActions } from '@/components/products/ProductActions';
 import { Badge } from '@/components/ui/badge';
@@ -78,6 +79,24 @@ export default async function ProductPage({ params }: ProductPageParams) {
           </div>
         </div>
       </Card>
+      
+       {product.features && product.features.length > 0 && (
+        <Card className="mb-12 shadow-lg">
+          <CardHeader>
+            <CardTitle className="font-headline text-primary">Specifications</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <dl className="divide-y divide-border">
+              {product.features.map((feature, index) => (
+                <div key={index} className="grid grid-cols-3 gap-4 py-3">
+                  <dt className="font-semibold text-sm text-foreground">{feature.name}</dt>
+                  <dd className="text-muted-foreground text-sm col-span-2">{feature.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </CardContent>
+        </Card>
+      )}
       
       <div className="mb-12">
         <Alert variant="destructive">
