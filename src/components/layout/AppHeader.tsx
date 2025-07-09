@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -10,11 +9,17 @@ import { AuthStatus } from '@/components/auth/AuthStatus';
 import { useMarket } from '@/context/MarketContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
 
 function CurrentMarketDisplay() {
   const { selectedMarket, isMarketLoading } = useMarket();
+  const [isClient, setIsClient] = useState(false);
 
-  if (isMarketLoading) {
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient || isMarketLoading) {
     return <Skeleton className="h-9 w-40 hidden md:flex" />;
   }
 
