@@ -1,7 +1,7 @@
 
 import type { UserProfile } from '@/types';
 
-const API_BASE_URL = 'https://e-electro-backend.onrender.com/api';
+const API_BASE_URL = 'https://batoshops.com/api';
 
 export async function getAllUsers(token: string): Promise<UserProfile[]> {
   const res = await fetch(`${API_BASE_URL}/users`, {

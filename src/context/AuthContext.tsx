@@ -44,7 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const token = await user.getIdToken();
       
-      const profileResponse = await fetch(`https://e-electro-backend.onrender.com/api/users/${user.uid}`, {
+      const profileResponse = await fetch(`https://batoshops.com/api/users/${user.uid}`, {
         headers: { Authorization: `Bearer ${token}` },
         cache: 'no-store',
       });
@@ -132,7 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const token = await userCredential.user.getIdToken();
 
     try {
-      const response = await fetch('https://e-electro-backend.onrender.com/api/users/register', {
+      const response = await fetch('https://batoshops.com/api/users/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -177,13 +177,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const user = result.user;
       const token = await user.getIdToken();
 
-      const profileResponse = await fetch(`https://e-electro-backend.onrender.com/api/users/${user.uid}`, {
+      const profileResponse = await fetch(`https://batoshops.com/api/users/${user.uid}`, {
         headers: { Authorization: `Bearer ${token}` },
         cache: 'no-store',
       });
 
       if (profileResponse.status === 404) {
-        const registrationResponse = await fetch('https://e-electro-backend.onrender.com/api/users/register', {
+        const registrationResponse = await fetch('https://batoshops.com/api/users/register', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
