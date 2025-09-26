@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from 'next/link';
@@ -102,7 +103,7 @@ export default function HomePage() {
             >
               <Card className="h-full hover:shadow-lg hover:-translate-y-1 transition-transform duration-300">
                 <CardHeader className="flex flex-col items-center text-center gap-2 p-3 sm:p-4">
-                  <div className="p-3 bg-primary/10 rounded-full text-primary">
+                  <div className="p-3 bg-accent/10 rounded-full text-accent">
                     {category.icon}
                   </div>
                   <div>
