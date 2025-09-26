@@ -11,9 +11,8 @@ import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { getMyShop, saveShop } from '@/services/shopService';
+import { uploadFile } from '@/services/uploadService';
 import type { Shop } from '@/types';
-import { storage } from '@/lib/firebase';
-import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { CATEGORIES } from '@/lib/mock-data';
 
 
@@ -104,13 +103,6 @@ export default function UpdateShopPage() {
     }
   }, [authLoading, user, router, form]);
 
-  const uploadFile = async (file: File, path: string): Promise<string> => {
-    if (!storage || !user) throw new Error("Firebase Storage or user not available.");
-    const fileRef = storageRef(storage, path);
-    const snapshot = await uploadBytesResumable(fileRef, file);
-    return getDownloadURL(snapshot.ref);
-  };
-
   async function onSubmit(data: UpdateShopFormValues) {
     if (!user) {
       toast({ title: 'Authentication error. Please log in again.', variant: 'destructive' });
@@ -125,14 +117,12 @@ export default function UpdateShopPage() {
 
       if (data.logoUrl instanceof File) {
         toast({ title: 'Uploading Logo...', description: 'Please wait.' });
-        const logoPath = `shops/${user.uid}/logo-${Date.now()}`;
-        finalLogoUrl = await uploadFile(data.logoUrl, logoPath);
+        finalLogoUrl = await uploadFile(data.logoUrl, token);
       }
 
       if (data.coverPhotoUrl instanceof File) {
         toast({ title: 'Uploading Cover Photo...', description: 'Please wait.' });
-        const coverPath = `shops/${user.uid}/cover-${Date.now()}`;
-        finalCoverPhotoUrl = await uploadFile(data.coverPhotoUrl, coverPath);
+        finalCoverPhotoUrl = await uploadFile(data.coverPhotoUrl, token);
       }
 
       const updateData = {

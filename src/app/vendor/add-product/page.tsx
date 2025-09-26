@@ -11,8 +11,7 @@ import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { createProduct } from '@/services/productService';
-import { storage } from '@/lib/firebase';
-import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { uploadFile } from '@/services/uploadService';
 import { MARKET_CATEGORIES } from '@/lib/mock-data';
 
 import { Button } from '@/components/ui/button';
@@ -78,13 +77,6 @@ export default function AddProductPage() {
     }
   }, [user, loading, isVendor, router, toast]);
 
-  const uploadFile = async (file: File, path: string): Promise<string> => {
-    if (!storage) throw new Error("Firebase Storage not configured.");
-    const fileRef = storageRef(storage, path);
-    const snapshot = await uploadBytesResumable(fileRef, file);
-    return getDownloadURL(snapshot.ref);
-  };
-
   async function onSubmit(data: ProductFormValues) {
     if (!user || !shop?.category) {
       toast({ title: 'You must be logged in and have a shop category defined.', variant: 'destructive' });
@@ -98,10 +90,7 @@ export default function AddProductPage() {
       
       const imageFiles = Array.from(data.images as FileList);
       const imageUrls = await Promise.all(
-        imageFiles.map((file, index) => {
-          const productPath = `products/${user.uid}/${Date.now()}-${index}-${file.name}`;
-          return uploadFile(file, productPath);
-        })
+        imageFiles.map(file => uploadFile(file, token))
       );
       
       toast({ title: 'Creating product...', description: 'Finalizing product details.' });

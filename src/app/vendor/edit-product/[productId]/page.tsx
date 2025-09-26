@@ -11,9 +11,8 @@ import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { getProductById, updateProduct } from '@/services/productService';
+import { uploadFile } from '@/services/uploadService';
 import type { Product } from '@/types';
-import { storage } from '@/lib/firebase';
-import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { MARKET_CATEGORIES } from '@/lib/mock-data';
 
 import { Button } from '@/components/ui/button';
@@ -105,13 +104,6 @@ export default function EditProductPage() {
     }
   }, [productId, form, router, toast]);
 
-  const uploadFile = async (file: File, path: string): Promise<string> => {
-    if (!storage) throw new Error("Firebase Storage not configured.");
-    const fileRef = storageRef(storage, path);
-    const snapshot = await uploadBytesResumable(fileRef, file);
-    return getDownloadURL(snapshot.ref);
-  };
-
   async function onSubmit(data: EditProductFormValues) {
     if (!user || !product) {
       toast({ title: 'An error occurred. Please try again.', variant: 'destructive' });
@@ -127,10 +119,7 @@ export default function EditProductPage() {
         toast({ title: 'Uploading new images...', description: 'Please wait, this may take a moment.' });
         const imageFiles = Array.from(data.images as FileList);
         imageUrls = await Promise.all(
-          imageFiles.map((file, index) => {
-            const productPath = `products/${user.uid}/${Date.now()}-${index}-${file.name}`;
-            return uploadFile(file, productPath);
-          })
+          imageFiles.map(file => uploadFile(file, token))
         );
       }
       
