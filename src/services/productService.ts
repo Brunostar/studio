@@ -2,7 +2,7 @@
 
 import type { Product } from '@/types';
 
-const API_BASE_URL = 'https://batoshops.com/api';
+const API_BASE_URL = 'https://e-electro-backend.onrender.com/api';
 
 export async function getAllProducts(): Promise<Product[]> {
   try {

@@ -1,5 +1,6 @@
 
-const API_BASE_URL = 'https://batoshops.com/api';
+
+const API_BASE_URL = 'https://e-electro-backend.onrender.com/api';
 
 /**
  * Uploads a file to the backend server.
