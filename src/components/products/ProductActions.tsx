@@ -87,7 +87,7 @@ export function ProductActions({ product }: ProductActionsProps) {
           size="lg"
           onClick={handleAddToCart}
           disabled={product.stock === 0}
-          className="flex-grow bg-accent hover:bg-accent/90 text-accent-foreground"
+          className="flex-grow bg-accent hover:bg-primary text-accent-foreground hover:text-primary-foreground"
         >
           <ShoppingCart className="mr-2 h-5 w-5" />
           Add to Cart

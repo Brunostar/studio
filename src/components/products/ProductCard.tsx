@@ -60,8 +60,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <Button 
           onClick={handleAddToCart} 
           disabled={product.stock <= 0}
-          className="w-full"
-          variant="outline"
+          className="w-full bg-accent hover:bg-primary text-accent-foreground hover:text-primary-foreground"
           size="sm"
           aria-label={`Add ${product.title} to cart`}
         >
