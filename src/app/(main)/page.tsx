@@ -4,7 +4,7 @@
 
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Laptop, Car, Shirt, ToyBrick, Home as HomeIcon, BookOpen, Star, Store } from 'lucide-react';
+import { Laptop, Car, Shirt, ToyBrick, Home as HomeIcon, BookOpen, Star, Store, ArrowRight } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useMarket } from '@/context/MarketContext';
 import { ProductList } from '@/components/products/ProductList';
@@ -14,6 +14,7 @@ import { useState, useEffect } from 'react';
 import { getAllProducts } from '@/services/productService';
 import { getAllShops } from '@/services/shopService';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 
 const marketCategories: { name: string; description: string; slug: string; icon: ReactNode; }[] = [
   { name: 'Electronics', slug: 'Electronics', description: 'Gadgets & more', icon: <Laptop className="w-8 h-8" /> },
@@ -103,7 +104,7 @@ export default function HomePage() {
             >
               <Card className="h-full hover:shadow-lg hover:-translate-y-1 transition-transform duration-300">
                 <CardHeader className="flex flex-col items-center text-center gap-2 p-3 sm:p-4">
-                  <div className="p-3 bg-primary/10 rounded-full text-accent">
+                  <div className="p-3 bg-accent/10 rounded-full text-accent">
                     {category.icon}
                   </div>
                   <div>
@@ -118,9 +119,17 @@ export default function HomePage() {
       </section>
       
       <section className="mb-12">
-        <div className="flex items-center gap-3 mb-6">
-          <Star className="w-6 h-6 text-accent" />
-          <h2 className="text-2xl font-bold font-headline text-primary">Popular Products</h2>
+        <div className="flex items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-3">
+            <Star className="w-6 h-6 text-accent" />
+            <h2 className="text-2xl font-bold font-headline text-primary">Popular Products</h2>
+          </div>
+          <Button variant="link" asChild>
+            <Link href="/products" className="text-sm text-accent">
+              More...
+              <ArrowRight className="ml-1 h-4 w-4" />
+            </Link>
+          </Button>
         </div>
         {isLoadingProducts ? (
           <ProductGridSkeleton />
@@ -130,9 +139,17 @@ export default function HomePage() {
       </section>
 
       <section>
-        <div className="flex items-center gap-3 mb-6">
-          <Store className="w-6 h-6 text-accent" />
-          <h2 className="text-2xl font-bold font-headline text-primary">Popular Shops</h2>
+        <div className="flex items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-3">
+            <Store className="w-6 h-6 text-accent" />
+            <h2 className="text-2xl font-bold font-headline text-primary">Popular Shops</h2>
+          </div>
+          <Button variant="link" asChild>
+            <Link href="/shops" className="text-sm text-accent">
+              More...
+              <ArrowRight className="ml-1 h-4 w-4" />
+            </Link>
+          </Button>
         </div>
         {isLoadingShops ? (
           <ShopGridSkeleton />
