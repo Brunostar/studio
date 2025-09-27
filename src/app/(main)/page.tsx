@@ -119,43 +119,43 @@ export default function HomePage() {
       </section>
       
       <section className="mb-12">
-        <div className="flex items-center justify-between gap-3 mb-6">
-          <div className="flex items-center gap-3">
-            <Star className="w-6 h-6 text-accent" />
-            <h2 className="text-2xl font-bold font-headline text-primary">Popular Products</h2>
-          </div>
-          <Button variant="link" asChild>
-            <Link href="/products" className="text-sm text-accent">
-              More...
-              <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
-          </Button>
+        <div className="flex items-center gap-3 mb-6">
+          <Star className="w-6 h-6 text-accent" />
+          <h2 className="text-2xl font-bold font-headline text-primary">Popular Products</h2>
         </div>
         {isLoadingProducts ? (
           <ProductGridSkeleton />
         ) : (
           <ProductList products={popularProducts} />
         )}
-      </section>
-
-      <section>
-        <div className="flex items-center justify-between gap-3 mb-6">
-          <div className="flex items-center gap-3">
-            <Store className="w-6 h-6 text-accent" />
-            <h2 className="text-2xl font-bold font-headline text-primary">Popular Shops</h2>
-          </div>
+        <div className="text-center mt-6">
           <Button variant="link" asChild>
-            <Link href="/shops" className="text-sm text-accent">
-              More...
+            <Link href="/products" className="text-sm text-accent">
+              View More Products
               <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </Button>
+        </div>
+      </section>
+
+      <section>
+        <div className="flex items-center gap-3 mb-6">
+          <Store className="w-6 h-6 text-accent" />
+          <h2 className="text-2xl font-bold font-headline text-primary">Popular Shops</h2>
         </div>
         {isLoadingShops ? (
           <ShopGridSkeleton />
         ) : (
           <ShopList shops={popularShops} />
         )}
+        <div className="text-center mt-6">
+          <Button variant="link" asChild>
+            <Link href="/shops" className="text-sm text-accent">
+              View More Shops
+              <ArrowRight className="ml-1 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
       </section>
     </div>
   );
