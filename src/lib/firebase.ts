@@ -1,5 +1,6 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
+import { getStorage, type FirebaseStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -23,8 +24,6 @@ export const firebaseConfigIsValid =
 // Initialize Firebase
 const app: FirebaseApp | null = !getApps().length && firebaseConfigIsValid ? initializeApp(firebaseConfig) : (getApps().length ? getApp() : null);
 const auth: Auth | null = app ? getAuth(app) : null;
+const storage: FirebaseStorage | null = app ? getStorage(app) : null;
 
-// Storage is no longer used from Firebase
-// const storage: FirebaseStorage | null = app ? getStorage(app) : null;
-
-export { app, auth };
+export { app, auth, storage };
